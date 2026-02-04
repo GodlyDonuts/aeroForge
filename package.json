@@ -1,0 +1,22 @@
+{
+  "name": "aeroForge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LiquidMetal AI workspace",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces",
+    "clean": "npm run clean --workspaces && shx rm -rf node_modules"
+  },
+  "devDependencies": {
+    "shx": "^0.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
