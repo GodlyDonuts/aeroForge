@@ -85,12 +85,30 @@ def render_sidebar():
 
         # API Key
         api_key = st.text_input(
-            "Google API Key",
+            "OpenRouter API Key",
             type="password",
-            help="Enter your Gemini API key"
+            help="Enter your OpenRouter API key",
+            value=os.getenv("OPENROUTER_API_KEY", "")
         )
         if api_key:
-            os.environ["GOOGLE_API_KEY"] = api_key
+            os.environ["OPENROUTER_API_KEY"] = api_key
+
+        st.divider()
+
+        # Model selection
+        st.header("🤖 Model Settings")
+        model_choice = st.selectbox(
+            "AI Model",
+            [
+                "google/gemini-3-pro-preview",
+                "google/gemini-pro",
+                "google/gemini-flash",
+                "anthropic/claude-3-opus",
+                "openai/gpt-4"
+            ],
+            index=0,
+            help="Select the AI model via OpenRouter (Gemini 3 Pro recommended)"
+        )
 
         st.divider()
 
@@ -432,8 +450,8 @@ def main():
             st.error("Please enter a mission description")
             return
 
-        if not os.getenv("GOOGLE_API_KEY"):
-            st.error("Please enter your Google API Key in the sidebar")
+        if not os.getenv("OPENROUTER_API_KEY"):
+            st.error("Please enter your OpenRouter API Key in the sidebar")
             return
 
         with st.spinner("Initializing aeroForge-G3..."):

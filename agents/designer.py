@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Designer Agent
-Generates build123d CAD code from mission requirements using Gemini 3
+Generates build123d CAD code from mission requirements using OpenRouter
 """
 
 import os
@@ -9,7 +9,7 @@ import sys
 from typing import Dict, Any
 from pathlib import Path
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from core.state import AeroForgeState
@@ -38,20 +38,21 @@ def designer_node(state: AeroForgeState) -> AeroForgeState:
     state["iteration"] = state["iteration"] + 1
 
     # Check for API key
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        state["errors"].append("GOOGLE_API_KEY not found")
+        state["errors"].append("OPENROUTER_API_KEY not found")
         return state
 
-    # Initialize Gemini 3 model
+    # Initialize OpenRouter model (using Google Gemini 3 Pro for code generation)
     try:
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash-exp",  # Using available Gemini model
+        llm = ChatOpenAI(
+            model="google/gemini-3-pro-preview",
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
             temperature=0.7,
-            api_key=api_key
         )
     except Exception as e:
-        state["errors"].append(f"Failed to initialize Gemini: {e}")
+        state["errors"].append(f"Failed to initialize OpenRouter: {e}")
         return state
 
     # Construct prompt

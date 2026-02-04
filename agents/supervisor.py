@@ -7,7 +7,7 @@ Decision node that routes workflow between Designer and Simulator
 import os
 from typing import Literal, Dict, Any
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from core.state import AeroForgeState
@@ -72,7 +72,7 @@ def supervisor_node(state: AeroForgeState) -> Dict[str, str]:
 
 def analyze_with_gemini(state: AeroForgeState) -> Literal["iterate", "finish"]:
     """
-    Use Gemini to decide whether to iterate or finish.
+    Use OpenRouter to decide whether to iterate or finish.
 
     Args:
         state: Current workflow state
@@ -81,19 +81,20 @@ def analyze_with_gemini(state: AeroForgeState) -> Literal["iterate", "finish"]:
         "iterate" to continue, "finish" to stop
     """
 
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         # No API key - use simple heuristic
         return simple_heuristic_decision(state)
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash-exp",
+        llm = ChatOpenAI(
+            model="google/gemini-3-pro-preview",
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
             temperature=0.3,
-            api_key=api_key
         )
     except Exception as e:
-        print(f"  Could not initialize Gemini: {e}")
+        print(f"  Could not initialize OpenRouter: {e}")
         return simple_heuristic_decision(state)
 
     system_prompt = """You are the Project Manager/Supervisor for the aeroForge-G3 engineering team.
@@ -148,14 +149,14 @@ Respond with only: "iterate" or "finish\""""
 
         # Validate response
         if decision in ["iterate", "finish"]:
-            print(f"  Gemini decision: {decision.upper()}")
+            print(f"  OpenRouter decision: {decision.upper()}")
             return decision
         else:
-            print(f"  ⚠ Invalid Gemini response: '{decision}', using heuristic")
+            print(f"  ⚠ Invalid OpenRouter response: '{decision}', using heuristic")
             return simple_heuristic_decision(state)
 
     except Exception as e:
-        print(f"  ⚠ Gemini analysis failed: {e}, using heuristic")
+        print(f"  ⚠ OpenRouter analysis failed: {e}, using heuristic")
         return simple_heuristic_decision(state)
 
 

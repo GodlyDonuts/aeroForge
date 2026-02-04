@@ -19,7 +19,7 @@ aeroForge-G3 is an AI-driven aerospace design system that uses multi-agent archi
 
 ### Technology Stack
 
-- **AI Models**: Gemini 3 Pro & Flash (Deep Think reasoning)
+- **AI Models**: OpenRouter API with Google Gemini 3 Pro
 - **CAD Kernel**: build123d (parametric Python CAD)
 - **Physics Engine**: Genesis (GPU-accelerated multiphysics)
 - **Orchestration**: LangGraph (state machine)
@@ -31,7 +31,7 @@ aeroForge-G3 is an AI-driven aerospace design system that uses multi-agent archi
 
 - Python 3.10+
 - NVIDIA GPU with CUDA (for Genesis GPU acceleration, optional)
-- Google Gemini API Key
+- OpenRouter API Key
 
 ### Setup
 
@@ -54,7 +54,11 @@ pip install -r requirements.txt
 
 4. Set API Key:
 ```bash
-export GOOGLE_API_KEY='your_api_key_here'
+# Copy the example file
+cp .env.example .env
+
+# Edit .env and add your OpenRouter API key
+# Get your key from: https://openrouter.ai/keys
 ```
 
 ## Usage
@@ -156,6 +160,13 @@ python -c "from core.physics import SimRunner; s = SimRunner('cpu'); print(s._ru
 
 ## Troubleshooting
 
+### API Key Not Found
+
+OpenRouter requires your API key to be set. Make sure you've:
+1. Created a `.env` file from `.env.example`
+2. Added your OpenRouter API key: `OPENROUTER_API_KEY=sk-or-v1-...`
+3. The `.env` file is in the project root directory
+
 ### Genesis Not Found
 
 Genesis may fail to initialize if GPU drivers are missing. The system automatically falls back to mock simulation mode.
@@ -167,9 +178,12 @@ build123d requires OCP (OpenCascade Python). If installation fails:
 pip install build123d[ocp]
 ```
 
-### API Key Errors
+### OpenRouter Model Access
 
-Ensure `GOOGLE_API_KEY` is set in environment before running.
+Make sure your OpenRouter account has access to `google/gemini-3-pro-preview` model.
+
+Check your OpenRouter dashboard for available models and pricing:
+- https://openrouter.ai/models
 
 ## License
 

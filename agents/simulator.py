@@ -9,7 +9,7 @@ import sys
 from typing import Dict, Any
 import tempfile
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from core.state import AeroForgeState
@@ -212,7 +212,7 @@ def generate_simple_urdf(stl_files: list) -> str:
 
 def analyze_simulation_with_gemini(state: AeroForgeState) -> str:
     """
-    Use Gemini to analyze simulation results and provide feedback.
+    Use OpenRouter to analyze simulation results and provide feedback.
 
     Args:
         state: Current workflow state with simulation data
@@ -221,18 +221,19 @@ def analyze_simulation_with_gemini(state: AeroForgeState) -> str:
         Analysis and feedback string
     """
 
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return "No API key available for analysis"
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash-exp",
+        llm = ChatOpenAI(
+            model="google/gemini-3-pro-preview",
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
             temperature=0.5,
-            api_key=api_key
         )
     except:
-        return "Could not initialize Gemini for analysis"
+        return "Could not initialize OpenRouter for analysis"
 
     system_prompt = """You are an expert test pilot and aerospace physicist.
 
