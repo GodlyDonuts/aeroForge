@@ -10,6 +10,9 @@ langchain                  # Framework
 langchain-google-genai     # Gemini 3 Adapter
 pydantic>=2.0
 
+# Configuration
+python-dotenv>=1.0.0       # Load environment variables from .env
+
 # Visualization & UI
 streamlit>=1.32.0
 stpyvista                  # 3D Mesh Rendering for Streamlit

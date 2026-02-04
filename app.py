@@ -9,6 +9,10 @@ import sys
 import time
 from pathlib import Path
 import streamlit as st
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add project root to path
 project_root = Path(__file__).parent
