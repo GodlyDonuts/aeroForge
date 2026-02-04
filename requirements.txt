@@ -7,7 +7,7 @@ scipy>=1.10.0
 # AI & Orchestration
 langgraph                  # Agent State Machine
 langchain                  # Framework
-langchain-google-genai     # Gemini 3 Adapter
+langchain-openai           # OpenAI/OpenRouter API Adapter (OpenRouter is OpenAI-compatible)
 pydantic>=2.0
 
 # Configuration

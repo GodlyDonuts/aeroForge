@@ -40,7 +40,8 @@ def supervisor_node(state: AeroForgeState) -> Dict[str, str]:
     # Check for termination conditions
 
     # Condition A: Max iterations reached
-    MAX_ITERATIONS = 10
+    # Reduced to 4 for free tier limits (20 RPD = ~5 iterations max)
+    MAX_ITERATIONS = 4
     if state["iteration"] >= MAX_ITERATIONS:
         print(f"⚠ Max iterations ({MAX_ITERATIONS}) reached - stopping")
         print("  Reason: Preventing infinite loops")
@@ -172,9 +173,10 @@ def simple_heuristic_decision(state: AeroForgeState) -> Literal["iterate", "fini
     metrics = state.get("simulation_metrics", {})
     iteration = state["iteration"]
 
-    # Minimum iterations required
-    if iteration < 3:
-        print(f"  Minimum iterations not met ({iteration}/3) - iterating")
+    # Minimum iterations required (reduced for free tier)
+    MIN_ITERATIONS = 2
+    if iteration < MIN_ITERATIONS:
+        print(f"  Minimum iterations not met ({iteration}/{MIN_ITERATIONS}) - iterating")
         return "iterate"
 
     # Check metrics
