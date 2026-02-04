@@ -56,11 +56,15 @@ def build_graph():
 def main():
     """Main execution function."""
     import os
+    from dotenv import load_dotenv
+    
+    # Load environment variables
+    load_dotenv()
 
     # Check for required environment variables
-    if not os.getenv("GOOGLE_API_KEY"):
-        print("ERROR: GOOGLE_API_KEY environment variable not set")
-        print("Please set it with: export GOOGLE_API_KEY='your_key'")
+    if not os.getenv("OPENROUTER_API_KEY"):
+        print("ERROR: OPENROUTER_API_KEY environment variable not set")
+        print("Please set it with: export OPENROUTER_API_KEY='your_key'")
         sys.exit(1)
 
     print("=" * 70)

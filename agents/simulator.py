@@ -6,6 +6,9 @@ Executes physics simulations using Genesis and analyzes results
 
 import os
 import sys
+import json
+import time
+from pathlib import Path
 from typing import Dict, Any
 import tempfile
 
@@ -69,29 +72,61 @@ def simulator_node(state: AeroForgeState) -> AeroForgeState:
     print(f"  ✓ Generated URDF: {urdf_path}")
 
     # Step 4: Run physics simulation
-    print("Step 4: Running Genesis simulation...")
-    sim_runner = SimRunner(backend="gpu")
-
+    print("Step 4: Running Genesis simulation (subprocess)...")
+    
+    import subprocess
+    import json
+    
+    # Define paths
+    sim_script = Path("core/run_simulation.py")
+    output_json = Path(f"output/sim_results_{state.get('iteration', 0)}.json")
+    
+    cmd = [
+        sys.executable,
+        str(sim_script),
+        "--urdf", str(urdf_path),
+        "--output", str(output_json),
+        "--steps", "500",
+        "--backend", "gpu" 
+    ]
+    
     try:
-        sim_runner.load_environment(urdf_path, terrain="plane")
-        telemetry = sim_runner.run_episode(steps=500, dt=0.01)
-
-        # Store results
-        state["simulation_results"] = telemetry
-        state["simulation_metrics"] = sim_runner.analyze_stability(telemetry)
-
-        print(f"  ✓ Simulation complete")
-        print(f"    Stability score: {state['simulation_metrics'].get('stability_score', 0):.2f}")
-        print(f"    Max acceleration: {state['simulation_metrics'].get('max_acceleration', 0):.2f} m/s²")
+        # Run subprocess
+        result = subprocess.run(
+            cmd, 
+            capture_output=True, 
+            text=True, 
+            check=False
+        )
+        
+        print(f"Subprocess output: {result.stdout}")
+        if result.stderr:
+            print(f"Subprocess error: {result.stderr}")
+            
+        if result.returncode != 0:
+            raise Exception(f"Simulation process failed with code {result.returncode}")
+            
+        # Load results
+        if output_json.exists():
+            with open(output_json, "r") as f:
+                sim_data = json.load(f)
+                
+            if sim_data.get("status") == "error":
+                raise Exception(sim_data.get("error"))
+                
+            state["simulation_results"] = sim_data.get("telemetry", {})
+            state["simulation_metrics"] = sim_data.get("metrics", {})
+            
+            print(f"  ✓ Simulation complete")
+            print(f"    Stability score: {state['simulation_metrics'].get('stability_score', 0):.2f}")
+        else:
+            raise Exception("No results file generated")
 
     except Exception as e:
         error_msg = f"Simulation failed: {e}"
         print(f"  ✗ {error_msg}")
         state["errors"].append(error_msg)
         state["simulation_metrics"] = {"error": str(e)}
-
-    finally:
-        sim_runner.cleanup()
 
     # Step 5: Analyze results with Gemini (Deep Think reasoning)
     print("Step 5: Analyzing results with Gemini...")

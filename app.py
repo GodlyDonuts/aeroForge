@@ -9,6 +9,8 @@ import sys
 import time
 from pathlib import Path
 import streamlit as st
+import matplotlib
+matplotlib.use('Agg')
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -19,11 +21,12 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from core.state import AeroForgeState, create_initial_state
-from core.geometry import SceneBuilder
-from core.physics import SimRunner
-from agents.designer import designer_node
-from agents.simulator import simulator_node
-from agents.supervisor import supervisor_node
+# Lazy load other modules inside functions to prevent MacOS threading crashes
+# from core.geometry import SceneBuilder
+# from core.physics import SimRunner
+# from agents.designer import designer_node
+# from agents.simulator import simulator_node
+# from agents.supervisor import supervisor_node
 from main import build_graph
 
 
@@ -373,13 +376,17 @@ def run_workflow_graph(mission_prompt: str, state: dict) -> dict:
     Returns:
         Updated workflow state
     """
+    # Lazy imports here
+    from agents.designer import designer_node
+    from agents.simulator import simulator_node
+    from agents.supervisor import supervisor_node
 
     # Initialize if needed
     if not state:
         state = create_initial_state(mission_prompt)
 
     # Build graph
-    graph = build_graph()
+    # graph = build_graph() # Skipping graph build for direct execution loop to avoid complexity
 
     # Execute with progress
     with st.spinner("Running design workflow..."):
