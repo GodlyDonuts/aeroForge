@@ -4,38 +4,10 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-export interface MissionRequest {
-  prompt: string;
-  max_iterations?: number;
-}
-
-export interface MissionResponse {
-  mission_id: string;
-  status: string;
-  message: string;
-}
-
-export interface StatusResponse {
-  mission_id: string;
-  status: string;
-  iteration: number;
-  current_agent: string;
-  logs: string[];
-  errors: string[];
-  simulation_metrics: Record<string, any>;
-}
-
-export interface ResultsResponse {
-  mission_id: string;
-  status: string;
-  files: string[];
-  metrics: Record<string, any>;
-}
-
 /**
  * Submit a new mission
  */
-export async function submitMission(request: MissionRequest): Promise<MissionResponse> {
+export async function submitMission(request) {
   const response = await fetch(`${API_BASE_URL}/api/mission`, {
     method: 'POST',
     headers: {
@@ -54,7 +26,7 @@ export async function submitMission(request: MissionRequest): Promise<MissionRes
 /**
  * Get mission status
  */
-export async function getMissionStatus(missionId: string): Promise<StatusResponse> {
+export async function getMissionStatus(missionId) {
   const response = await fetch(`${API_BASE_URL}/api/status/${missionId}`);
 
   if (!response.ok) {
@@ -67,7 +39,7 @@ export async function getMissionStatus(missionId: string): Promise<StatusRespons
 /**
  * Get mission results
  */
-export async function getMissionResults(missionId: string): Promise<ResultsResponse> {
+export async function getMissionResults(missionId) {
   const response = await fetch(`${API_BASE_URL}/api/results/${missionId}`);
 
   if (!response.ok) {
@@ -80,7 +52,7 @@ export async function getMissionResults(missionId: string): Promise<ResultsRespo
 /**
  * Get simulation metrics
  */
-export async function getMissionMetrics(missionId: string): Promise<any> {
+export async function getMissionMetrics(missionId) {
   const response = await fetch(`${API_BASE_URL}/api/metrics/${missionId}`);
 
   if (!response.ok) {
@@ -93,7 +65,7 @@ export async function getMissionMetrics(missionId: string): Promise<any> {
 /**
  * Get generated code
  */
-export async function getMissionCode(missionId: string): Promise<any> {
+export async function getMissionCode(missionId) {
   const response = await fetch(`${API_BASE_URL}/api/code/${missionId}`);
 
   if (!response.ok) {
@@ -106,7 +78,7 @@ export async function getMissionCode(missionId: string): Promise<any> {
 /**
  * Get file URL
  */
-export function getFileUrl(filePath: string): string {
+export function getFileUrl(filePath) {
   return `${API_BASE_URL}/api/files/${filePath}`;
 }
 
@@ -114,11 +86,11 @@ export function getFileUrl(filePath: string): string {
  * Poll mission status at interval
  */
 export async function pollMissionStatus(
-  missionId: string,
-  onUpdate: (status: StatusResponse) => void,
-  intervalMs: number = 1000,
-  maxPolls: number = 300
-): Promise<void> {
+  missionId,
+  onUpdate,
+  intervalMs = 1000,
+  maxPolls = 300
+) {
   let polls = 0;
 
   const poll = async () => {
