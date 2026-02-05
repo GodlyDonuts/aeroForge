@@ -139,13 +139,23 @@ class MissionManager:
         mesh_dir = self.output_dir / "meshes"
         if mesh_dir.exists():
             for stl in mesh_dir.glob("*.stl"):
-                files.append(str(stl))
+                # Return path relative to CWD for clean URLs
+                try:
+                    rel_path = stl.relative_to(Path.cwd())
+                    files.append(str(rel_path))
+                except ValueError:
+                    # Fallback if not relative (shouldn't happen with default setup)
+                    files.append(str(stl))
 
         # Check for URDF files
         urdf_dir = self.output_dir / "urdf"
         if urdf_dir.exists():
             for urdf in urdf_dir.glob("*.urdf"):
-                files.append(str(urdf))
+                try:
+                    rel_path = urdf.relative_to(Path.cwd())
+                    files.append(str(rel_path))
+                except ValueError:
+                    files.append(str(urdf))
 
         return files
 
@@ -419,11 +429,13 @@ async def get_file(file_path: str):
 
     # Security check - ensure path is within output directory
     output_dir = Path("output").resolve()
+    # Handle the fact that file_path might already contain "output/" prefix
+    # If the user requests "output/meshes/foo.stl", joining with CWD works.
     requested_path = (Path.cwd() / file_path).resolve()
 
-    try:
-        requested_path.relative_to(output_dir)
-    except ValueError:
+    # Check if requested path is relative to output dir
+    if not str(requested_path).startswith(str(output_dir)):
+        print(f"Access denied: {requested_path} is not in {output_dir}")
         raise HTTPException(status_code=403, detail="Access denied: Path outside output directory")
 
     if not requested_path.exists():

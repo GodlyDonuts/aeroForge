@@ -1,77 +1,109 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, ContactShadows, PerspectiveCamera } from '@react-three/drei';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import { Canvas, useLoader, useThree } from '@react-three/fiber';
+import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, ContactShadows, PerspectiveCamera, useGLTF, Center, Stage } from '@react-three/drei';
 import { getMissionResults, getFileUrl } from '../api';
 import * as THREE from 'three';
-
-import { useLoader } from '@react-three/fiber';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
-// 3D Model Components
-function DroneModel({ isLoaded, stlUrl, status }) {
-  const groupRef = useRef();
-
-  // Load STL if URL is available
-  const geometry = useLoader(STLLoader, isLoaded && stlUrl ? stlUrl : null);
-
-  useEffect(() => {
-    if (groupRef.current && !isLoaded) {
-      groupRef.current.rotation.y += 0.005;
-    }
-  }, [isLoaded]);
-
-  if (isLoaded && geometry) {
-    return (
-      <group>
-        <mesh
-          geometry={geometry}
-          position={[0, 0, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          castShadow
-          receiveShadow
-        >
-          <meshStandardMaterial
-            color="#1a1a25"
-            metalness={0.8}
-            roughness={0.2}
-          />
-        </mesh>
-
-        {/* Add some ambient glow for the "SpaceX" feel */}
-        <pointLight position={[0, 2, 0]} intensity={2} color="#00f0ff" distance={3} />
-      </group>
-    );
+// React Error Boundary for 3D Components
+class ModelErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
   }
 
-  return (
-    <>
-      {/* Placeholder Model */}
-      <mesh position={[0, 0.5, 0]} rotation={[0, 0, 0]}>
-        <octahedronGeometry args={[0.4, 0]} />
-        <meshStandardMaterial
-          color="#7b2cbf"
-          metalness={0.8}
-          roughness={0.2}
-          wireframe
-        />
-      </mesh>
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
 
-      <mesh position={[0, 0.5, 0]}>
-        <octahedronGeometry args={[0.35, 0]} />
-        <meshStandardMaterial
-          color="#00f0ff"
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#00f0ff"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-    </>
+  componentDidCatch(error, errorInfo) {
+    console.error("STL Loading error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <FallbackModel />;
+    }
+
+    return this.props.children;
+  }
+}
+
+// 3D Model Component
+function STLModel({ url }) {
+  const meshRef = useRef();
+
+  // useLoader throws a promise for Suspense, so do NOT wrap in try/catch
+  const geometry = useLoader(STLLoader, url);
+
+  return (
+    <Center>
+      <Float rotationIntensity={0.5} floatIntensity={0.5} speed={2}>
+        <mesh ref={meshRef} geometry={geometry} castShadow receiveShadow>
+          <meshStandardMaterial
+            color="#0a0a0f"
+            metalness={0.9}
+            roughness={0.1}
+            emissive="#00f0ff"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+      </Float>
+    </Center>
   );
 }
 
+// Fallback model for errors or no STL
+function FallbackModel() {
+  return (
+    <Center>
+      <Float rotationIntensity={0.3} floatIntensity={0.5} speed={2}>
+        <mesh castShadow receiveShadow>
+          <octahedronGeometry args={[0.4, 0]} />
+          <meshStandardMaterial
+            color="#7b2cbf"
+            metalness={0.8}
+            roughness={0.2}
+            wireframe
+          />
+        </mesh>
+        <mesh>
+          <octahedronGeometry args={[0.35, 0]} />
+          <meshStandardMaterial
+            color="#00f0ff"
+            metalness={0.9}
+            roughness={0.1}
+            emissive="#00f0ff"
+            emissiveIntensity={0.3}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </Float>
+    </Center>
+  );
+}
+
+// Placeholder model for no mission
+function PlaceholderModel() {
+  return (
+    <Center>
+      <Float rotationIntensity={0.2} floatIntensity={0.5} speed={2}>
+        <mesh>
+          <octahedronGeometry args={[0.5, 0]} />
+          <meshStandardMaterial
+            color="#7b2cbf"
+            metalness={0.8}
+            roughness={0.2}
+            wireframe
+          />
+        </mesh>
+      </Float>
+    </Center>
+  );
+}
+
+// Lighting setup
 function Lighting() {
   return (
     <>
@@ -81,13 +113,10 @@ function Lighting() {
         intensity={1.2}
         castShadow
         color="#ffffff"
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
         shadow-camera-near={0.5}
         shadow-camera-far={50}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
       />
       <pointLight position={[-5, 5, -5]} intensity={0.5} color="#00f0ff" />
       <pointLight position={[5, 5, 5]} intensity={0.5} color="#7b2cbf" />
@@ -96,11 +125,11 @@ function Lighting() {
   );
 }
 
+// Ground plane
 function Ground() {
   return (
     <>
       <Grid
-        args={[20, 20]}
         cellSize={1}
         cellThickness={0.02}
         cellColor="#00f0ff"
@@ -126,6 +155,7 @@ function Ground() {
   );
 }
 
+// HUD Overlay
 function HUD({ missionId, status, isLoaded }) {
   if (!missionId) return null;
 
@@ -180,13 +210,50 @@ function HUD({ missionId, status, isLoaded }) {
   );
 }
 
+// Error boundary for 3D rendering
+function ErrorFallback({ error }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-alert-red/5">
+      <div className="text-center">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-alert-red/10 border border-alert-red/30 flex items-center justify-center">
+          <div className="text-4xl text-alert-red font-bold">!</div>
+        </div>
+        <h3 className="text-lg font-bold text-alert-red mb-2 tracking-wider">RENDER ERROR</h3>
+        <p className="text-sm text-gray-500 max-w-xs">{error?.message || 'Failed to load 3D model'}</p>
+      </div>
+    </div>
+  );
+}
+
+// Loading fallback
+function LoadingFallback() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm">
+      <div className="text-center">
+        <div className="relative w-16 h-16 mx-auto mb-4">
+          <div className="absolute inset-0 border-4 border-neon-blue/20 rounded-full" />
+          <div className="absolute inset-0 border-4 border-transparent border-t-neon-blue rounded-full animate-spin" />
+          <div className="absolute inset-2 border-4 border-transparent border-t-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+        </div>
+        <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">
+          LOADING MODEL...
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main Visualizer Component
 function Visualizer3D({ missionId, missionStatus }) {
   const [stlFiles, setStlFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [renderError, setRenderError] = useState(null);
 
   useEffect(() => {
     if (!missionId || missionStatus?.status !== 'complete') {
+      setStlFiles([]);
+      setError(null);
       return;
     }
 
@@ -200,6 +267,7 @@ function Visualizer3D({ missionId, missionStatus }) {
       } catch (err) {
         console.error('Failed to fetch results:', err);
         setError('Failed to load 3D files');
+        setStlFiles([]);
       } finally {
         setLoading(false);
       }
@@ -208,7 +276,9 @@ function Visualizer3D({ missionId, missionStatus }) {
     fetchResults();
   }, [missionId, missionStatus]);
 
-  const isLoaded = stlFiles.length > 0 && missionStatus?.status === 'complete';
+  const isLoaded = stlFiles.length > 0 && missionStatus?.status === 'complete' && !error;
+  // Use getFileUrl to respect API config (proxy vs direct) and add timestamp for cache busting
+  const stlUrl = isLoaded && stlFiles.length > 0 ? getFileUrl(stlFiles[0]) + `?t=${Date.now()}` : null;
 
   return (
     <div className="glass-panel overflow-hidden relative h-full min-h-[600px]">
@@ -252,7 +322,14 @@ function Visualizer3D({ missionId, missionStatus }) {
 
       {/* 3D Canvas */}
       <div className="absolute inset-0 pt-[72px]">
-        <Canvas shadows dpr={[1, 2]}>
+        <Canvas
+          shadows
+          dpr={[1, 2]}
+          onError={(error) => {
+            console.error('Canvas error:', error);
+            setRenderError(error);
+          }}
+        >
           <PerspectiveCamera makeDefault position={[5, 4, 5]} fov={50} />
           <color attach="background" args={['#0a0a0f']} />
 
@@ -260,11 +337,18 @@ function Visualizer3D({ missionId, missionStatus }) {
           <Environment preset="city" />
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
           <Ground />
-          <DroneModel
-            isLoaded={isLoaded}
-            status={missionStatus?.status}
-            stlUrl={isLoaded && stlFiles.length > 0 ? getFileUrl(stlFiles[0]) : null}
-          />
+
+          <Suspense fallback={null}>
+            <ModelErrorBoundary>
+              {isLoaded && stlUrl ? (
+                <STLModel url={stlUrl} />
+              ) : missionId ? (
+                <FallbackModel />
+              ) : (
+                <PlaceholderModel />
+              )}
+            </ModelErrorBoundary>
+          </Suspense>
 
           <OrbitControls
             enableDamping
@@ -276,28 +360,13 @@ function Visualizer3D({ missionId, missionStatus }) {
             enablePan={true}
             enableZoom={true}
           />
-
-
         </Canvas>
 
         {/* HUD Overlay */}
         <HUD missionId={missionId} status={missionStatus?.status} isLoaded={isLoaded} />
 
         {/* Loading Overlay */}
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm">
-            <div className="text-center">
-              <div className="relative w-16 h-16 mx-auto mb-4">
-                <div className="absolute inset-0 border-4 border-neon-blue/20 rounded-full" />
-                <div className="absolute inset-0 border-4 border-transparent border-t-neon-blue rounded-full animate-spin" />
-                <div className="absolute inset-2 border-4 border-transparent border-t-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-              </div>
-              <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">
-                LOADING MODEL...
-              </div>
-            </div>
-          </div>
-        )}
+        {loading && <LoadingFallback />}
 
         {/* Empty State */}
         {!missionId && !loading && !error && (
@@ -326,6 +395,9 @@ function Visualizer3D({ missionId, missionStatus }) {
             </div>
           </div>
         )}
+
+        {/* Render Error */}
+        {renderError && <ErrorFallback error={renderError} />}
       </div>
     </div>
   );
