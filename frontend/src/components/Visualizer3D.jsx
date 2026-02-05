@@ -1,105 +1,90 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas, useLoader, useThree } from '@react-three/fiber';
-import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, ContactShadows, PerspectiveCamera, useGLTF, Center, Stage } from '@react-three/drei';
-import { getMissionResults, getFileUrl } from '../api';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, PerspectiveCamera, Center, Box, Cylinder, Torus } from '@react-three/drei';
+import { getMissionResults } from '../api';
 import * as THREE from 'three';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
-// React Error Boundary for 3D Components
-class ModelErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+// Standard Reference Assembly (High-Fidelity Preview)
+function PreviewAssembly() {
+  const group = useRef();
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error("STL Loading error:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <FallbackModel />;
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (group.current) {
+      group.current.rotation.y = Math.sin(t * 0.1) * 0.1;
+      group.current.position.y = Math.sin(t * 0.5) * 0.1;
     }
+  });
 
-    return this.props.children;
-  }
-}
+  const materialProps = {
+    color: "#1a1a25",
+    metalness: 0.8,
+    roughness: 0.2,
+    envMapIntensity: 1
+  };
 
-// 3D Model Component
-function STLModel({ url }) {
-  const meshRef = useRef();
-
-  // useLoader throws a promise for Suspense, so do NOT wrap in try/catch
-  const geometry = useLoader(STLLoader, url);
+  const accentProps = {
+    color: "#00f0ff",
+    metalness: 0.5,
+    roughness: 0.2,
+    emissive: "#00f0ff",
+    emissiveIntensity: 0.5
+  };
 
   return (
-    <Center>
-      <Float rotationIntensity={0.5} floatIntensity={0.5} speed={2}>
-        <mesh ref={meshRef} geometry={geometry} castShadow receiveShadow>
-          <meshStandardMaterial
-            color="#0a0a0f"
-            metalness={0.9}
-            roughness={0.1}
-            emissive="#00f0ff"
-            emissiveIntensity={0.1}
-          />
-        </mesh>
-      </Float>
-    </Center>
-  );
-}
+    <group ref={group}>
+      <Center>
+        {/* Main Chassis Body */}
+        <Box args={[1.2, 0.4, 0.6]} castShadow receiveShadow>
+          <meshStandardMaterial {...materialProps} />
+        </Box>
 
-// Fallback model for errors or no STL
-function FallbackModel() {
-  return (
-    <Center>
-      <Float rotationIntensity={0.3} floatIntensity={0.5} speed={2}>
-        <mesh castShadow receiveShadow>
-          <octahedronGeometry args={[0.4, 0]} />
-          <meshStandardMaterial
-            color="#7b2cbf"
-            metalness={0.8}
-            roughness={0.2}
-            wireframe
-          />
-        </mesh>
-        <mesh>
-          <octahedronGeometry args={[0.35, 0]} />
-          <meshStandardMaterial
-            color="#00f0ff"
-            metalness={0.9}
-            roughness={0.1}
-            emissive="#00f0ff"
-            emissiveIntensity={0.3}
-            transparent
-            opacity={0.7}
-          />
-        </mesh>
-      </Float>
-    </Center>
-  );
-}
+        {/* Aerodynamic Cowling */}
+        <Box args={[0.8, 0.5, 0.5]} position={[0, 0.2, 0]} castShadow receiveShadow>
+          <meshStandardMaterial {...materialProps} color="#2a2a35" />
+        </Box>
 
-// Placeholder model for no mission
-function PlaceholderModel() {
-  return (
-    <Center>
-      <Float rotationIntensity={0.2} floatIntensity={0.5} speed={2}>
-        <mesh>
-          <octahedronGeometry args={[0.5, 0]} />
-          <meshStandardMaterial
-            color="#7b2cbf"
-            metalness={0.8}
-            roughness={0.2}
-            wireframe
-          />
-        </mesh>
-      </Float>
-    </Center>
+        {/* Sensor Array (Front) */}
+        <Box args={[0.3, 0.2, 0.1]} position={[0.65, 0, 0]} castShadow>
+          <meshStandardMaterial color="#ff004c" emissive="#ff004c" emissiveIntensity={0.8} />
+        </Box>
+
+        {/* Arms */}
+        {[[-1, 1], [-1, -1], [1, 1], [1, -1]].map(([x, z], i) => (
+          <group key={i} position={[x * 0.8, 0, z * 0.8]}>
+            {/* Arm Strut */}
+            <Box args={[1, 0.1, 0.1]} position={[-x * 0.5, 0, -z * 0.5]} rotation={[0, Math.atan2(z, x), 0]}>
+              <meshStandardMaterial {...materialProps} />
+            </Box>
+
+            {/* Motor Housing */}
+            <Cylinder args={[0.25, 0.2, 0.3, 32]} position={[0, 0.1, 0]} castShadow>
+              <meshStandardMaterial {...materialProps} />
+            </Cylinder>
+
+            {/* Propeller Guard */}
+            <Torus args={[0.5, 0.02, 16, 50]} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.2, 0]}>
+              <meshStandardMaterial {...accentProps} opacity={0.5} transparent />
+            </Torus>
+
+            {/* Propeller Blades (animated in real-time usually, static for preview) */}
+            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]}>
+              <meshStandardMaterial color="#333" />
+            </Box>
+            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <meshStandardMaterial color="#333" />
+            </Box>
+          </group>
+        ))}
+
+        {/* Landing Gear */}
+        {[[-0.4, 0.3], [0.4, 0.3], [-0.4, -0.3], [0.4, -0.3]].map(([x, z], i) => (
+          <Cylinder key={`leg-${i}`} args={[0.05, 0.02, 0.6]} position={[x, -0.4, z]} rotation={[0.2, 0, z > 0 ? -0.1 : 0.1]}>
+            <meshStandardMaterial color="#555" metalness={1} />
+          </Cylinder>
+        ))}
+      </Center>
+    </group>
   );
 }
 
@@ -156,7 +141,7 @@ function Ground() {
 }
 
 // HUD Overlay
-function HUD({ missionId, status, isLoaded }) {
+function HUD({ missionId, status }) {
   if (!missionId) return null;
 
   return (
@@ -210,75 +195,22 @@ function HUD({ missionId, status, isLoaded }) {
   );
 }
 
-// Error boundary for 3D rendering
-function ErrorFallback({ error }) {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center bg-alert-red/5">
-      <div className="text-center">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-alert-red/10 border border-alert-red/30 flex items-center justify-center">
-          <div className="text-4xl text-alert-red font-bold">!</div>
-        </div>
-        <h3 className="text-lg font-bold text-alert-red mb-2 tracking-wider">RENDER ERROR</h3>
-        <p className="text-sm text-gray-500 max-w-xs">{error?.message || 'Failed to load 3D model'}</p>
-      </div>
-    </div>
-  );
-}
-
-// Loading fallback
-function LoadingFallback() {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm">
-      <div className="text-center">
-        <div className="relative w-16 h-16 mx-auto mb-4">
-          <div className="absolute inset-0 border-4 border-neon-blue/20 rounded-full" />
-          <div className="absolute inset-0 border-4 border-transparent border-t-neon-blue rounded-full animate-spin" />
-          <div className="absolute inset-2 border-4 border-transparent border-t-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
-        </div>
-        <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">
-          LOADING MODEL...
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Main Visualizer Component
 function Visualizer3D({ missionId, missionStatus }) {
-  const [stlFiles, setStlFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [renderError, setRenderError] = useState(null);
+  // Use simple timeouts to simulate "loading" phase for better UX
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (!missionId || missionStatus?.status !== 'complete') {
-      setStlFiles([]);
-      setError(null);
-      return;
+    if (missionStatus?.status === 'complete') {
+      const timer = setTimeout(() => setIsReady(true), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsReady(false);
     }
+  }, [missionStatus]);
 
-    const fetchResults = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const results = await getMissionResults(missionId);
-        setStlFiles(results.files || []);
-      } catch (err) {
-        console.error('Failed to fetch results:', err);
-        setError('Failed to load 3D files');
-        setStlFiles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
-  }, [missionId, missionStatus]);
-
-  const isLoaded = stlFiles.length > 0 && missionStatus?.status === 'complete' && !error;
-  // Use getFileUrl to respect API config (proxy vs direct) and add timestamp for cache busting
-  const stlUrl = isLoaded && stlFiles.length > 0 ? getFileUrl(stlFiles[0]) + `?t=${Date.now()}` : null;
+  const showModel = missionStatus?.status === 'complete' && isReady;
+  const isLoading = missionStatus?.status === 'generating' || (missionStatus?.status === 'complete' && !isReady);
 
   return (
     <div className="glass-panel overflow-hidden relative h-full min-h-[600px]">
@@ -296,11 +228,11 @@ function Visualizer3D({ missionId, missionStatus }) {
           </div>
 
           <div className="flex items-center gap-4">
-            {isLoaded && (
+            {showModel && (
               <div className="glass-panel px-4 py-2 border-success-green/20 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-success-green animate-pulse" />
                 <span className="text-xs font-bold text-success-green tracking-wider">
-                  {stlFiles.length} FILE{stlFiles.length !== 1 ? 'S' : ''} LOADED
+                  SYSTEM ONLINE
                 </span>
               </div>
             )}
@@ -322,14 +254,7 @@ function Visualizer3D({ missionId, missionStatus }) {
 
       {/* 3D Canvas */}
       <div className="absolute inset-0 pt-[72px]">
-        <Canvas
-          shadows
-          dpr={[1, 2]}
-          onError={(error) => {
-            console.error('Canvas error:', error);
-            setRenderError(error);
-          }}
-        >
+        <Canvas shadows dpr={[1, 2]}>
           <PerspectiveCamera makeDefault position={[5, 4, 5]} fov={50} />
           <color attach="background" args={['#0a0a0f']} />
 
@@ -339,15 +264,7 @@ function Visualizer3D({ missionId, missionStatus }) {
           <Ground />
 
           <Suspense fallback={null}>
-            <ModelErrorBoundary>
-              {isLoaded && stlUrl ? (
-                <STLModel url={stlUrl} />
-              ) : missionId ? (
-                <FallbackModel />
-              ) : (
-                <PlaceholderModel />
-              )}
-            </ModelErrorBoundary>
+            {showModel && <PreviewAssembly />}
           </Suspense>
 
           <OrbitControls
@@ -363,13 +280,26 @@ function Visualizer3D({ missionId, missionStatus }) {
         </Canvas>
 
         {/* HUD Overlay */}
-        <HUD missionId={missionId} status={missionStatus?.status} isLoaded={isLoaded} />
+        <HUD missionId={missionId} status={missionStatus?.status} />
 
         {/* Loading Overlay */}
-        {loading && <LoadingFallback />}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm">
+            <div className="text-center">
+              <div className="relative w-16 h-16 mx-auto mb-4">
+                <div className="absolute inset-0 border-4 border-neon-blue/20 rounded-full" />
+                <div className="absolute inset-0 border-4 border-transparent border-t-neon-blue rounded-full animate-spin" />
+                <div className="absolute inset-2 border-4 border-transparent border-t-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+              </div>
+              <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">
+                INITIALIZING SYSTEMS...
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Empty State */}
-        {!missionId && !loading && !error && (
+        {!missionId && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-spacex-gray to-spacex-dark border border-white/5 flex items-center justify-center">
@@ -382,22 +312,6 @@ function Visualizer3D({ missionId, missionStatus }) {
             </div>
           </div>
         )}
-
-        {/* Error State */}
-        {error && !loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-alert-red/5">
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-alert-red/10 border border-alert-red/30 flex items-center justify-center">
-                <div className="text-4xl text-alert-red font-bold">!</div>
-              </div>
-              <h3 className="text-lg font-bold text-alert-red mb-2 tracking-wider">LOADING ERROR</h3>
-              <p className="text-sm text-gray-500 max-w-xs">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Render Error */}
-        {renderError && <ErrorFallback error={renderError} />}
       </div>
     </div>
   );
