@@ -155,29 +155,11 @@ def execute_cad_code(cad_code: str):
         return create_mock_part()
 
     try:
-        # Create comprehensive execution namespace
-        namespace = {
-            "Box": bd.Box,
-            "Cylinder": bd.Cylinder,
-            "Sphere": bd.Sphere,
-            "Cone": bd.Cone,
-            "Builder": bd.Builder,
-            "BuildPart": bd.BuildPart,
-            "Part": bd.Part,
-            "Compound": bd.Compound,
-            "Union": bd.Union,
-            "Subtract": bd.Subtract,
-            "Intersect": bd.Intersect,
-            "Rot": bd.Rot,
-            "Rotate": bd.Rotate,
-            "Pos": bd.Pos,
-            "Location": bd.Location,
-            "Axis": bd.Axis,
-            "Align": bd.Align,
-            "Mode": bd.Mode,
-            "__builtins__": __builtins__,
-            "bd": bd,  # Allow direct bd.* calls
-        }
+        # Create comprehensive execution namespace by importing everything from build123d
+        namespace = {}
+        namespace.update(bd.__dict__)
+        namespace["__builtins__"] = __builtins__
+        namespace["bd"] = bd
 
         # Execute the code
         exec(cad_code, namespace)
@@ -275,8 +257,8 @@ def generate_simple_urdf(stl_files: list) -> str:
     # Create links for each STL
     links = []
     for i, stl_path in enumerate(stl_files):
-        # Use relative path for URDF
-        rel_path = f"meshes/{Path(stl_path).name}"
+        # Use relative path for URDF (relative to output/urdf/ location)
+        rel_path = f"../meshes/{Path(stl_path).name}"
         links.append({
             "name": f"link_{i}",
             "mesh": rel_path,

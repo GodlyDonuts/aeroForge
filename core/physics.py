@@ -77,7 +77,6 @@ class SimRunner:
             # Create scene
             self.scene = self.gs.Scene(
                 show_viewer=False,
-                viewer_options={"width": 1280, "height": 720}
             )
 
             # Add terrain
@@ -97,7 +96,6 @@ class SimRunner:
             robot = self.scene.add_entity(
                 morph=self.gs.morphs.URDF(
                     file=urdf_path,
-                    fixed_base=False
                 ),
             )
 

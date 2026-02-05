@@ -28,8 +28,8 @@ function App() {
           {/* Logo Section */}
           <div className="flex items-center gap-5">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon-blue to-purple flex items-center justify-center text-2xl box-glow animate-float">
-                🚀
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon-blue to-purple flex items-center justify-center text-2xl font-bold text-white box-glow animate-float">
+                A
               </div>
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-neon-blue to-purple blur-xl opacity-30" />
             </div>

@@ -31,28 +31,28 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
     {
       name: 'Mars Explorer',
       prompt: 'Design a quadcopter drone for Mars atmosphere with 2kg payload capacity. Must be stable in high winds and operate for at least 30 minutes. Use carbon fiber for lightweight construction.',
-      icon: '🔴',
+      icon: 'M',
       gradient: 'from-red-500/20 to-orange-500/20',
       border: 'border-red-500/30'
     },
     {
       name: 'High-Speed Racing',
       prompt: 'Design a high-speed racing drone capable of reaching 150 km/h. Focus on aerodynamic efficiency and minimal drag. Use slim arms and streamlined fuselage.',
-      icon: '⚡',
+      icon: 'R',
       gradient: 'from-yellow-500/20 to-amber-500/20',
       border: 'border-yellow-500/30'
     },
     {
       name: 'Heavy Lift Cargo',
       prompt: 'Design an octocopter heavy-lift drone capable of carrying 20kg payload. Prioritize stability and structural integrity. Use thick reinforced arms.',
-      icon: '📦',
+      icon: 'H',
       gradient: 'from-blue-500/20 to-cyan-500/20',
       border: 'border-blue-500/30'
     },
     {
       name: 'Stealth Surveillance',
       prompt: 'Design a stealth surveillance drone with long endurance (4+ hours) and low acoustic signature. Focus on aerodynamic efficiency and quiet operation.',
-      icon: '🎯',
+      icon: 'S',
       gradient: 'from-purple-500/20 to-pink-500/20',
       border: 'border-purple-500/30'
     }
@@ -64,8 +64,8 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-purple/20 border border-neon-blue/30 flex items-center justify-center text-2xl box-glow">
-              📋
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-purple/20 border border-neon-blue/30 flex items-center justify-center text-2xl font-bold text-neon-blue box-glow">
+              M
             </div>
             <div>
               <h2 className="text-lg font-bold text-white uppercase tracking-wider">Mission Parameters</h2>
@@ -103,7 +103,7 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
             <div className="flex justify-between text-[10px] text-gray-600">
               <span>{missionPrompt.length} / 2000 characters</span>
               <span className={missionPrompt.length > 2000 ? 'text-alert-red' : ''}>
-                {missionPrompt.length > 2000 && '⚠️ Limit exceeded'}
+                {missionPrompt.length > 2000 && '! Limit exceeded'}
               </span>
             </div>
           </div>
@@ -164,7 +164,7 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
               </span>
             ) : (
               <span className="flex items-center justify-center gap-3">
-                🚀 Launch Mission
+                Launch Mission
               </span>
             )}
           </button>

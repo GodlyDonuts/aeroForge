@@ -49,12 +49,12 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
 
   const getAgentIcon = (agent) => {
     const icons = {
-      'designer': '🔨',
-      'simulator': '🧪',
-      'supervisor': '👥',
-      'none': '🤖'
+      'designer': 'D',
+      'simulator': 'S',
+      'supervisor': 'V',
+      'none': 'A'
     };
-    return icons[agent] || '🤖';
+    return icons[agent] || 'A';
   };
 
   const getAgentColor = (agent) => {
@@ -104,7 +104,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-spacex-gray to-spacex-dark border border-white/5 flex items-center justify-center">
-              <div className="text-5xl animate-float">📡</div>
+              <div className="text-5xl animate-float text-neon-blue font-bold">+</div>
             </div>
             <h3 className="text-base font-bold text-white mb-2 tracking-wider">AWAITING MISSION</h3>
             <p className="text-sm text-gray-500 max-w-xs">
@@ -122,8 +122,8 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
       <div className="p-6 border-b border-white/5 bg-spacex-black/30">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-purple/20 border border-neon-blue/30 flex items-center justify-center text-2xl box-glow">
-              💻
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-purple/20 border border-neon-blue/30 flex items-center justify-center text-2xl font-bold text-neon-blue box-glow">
+              T
             </div>
             <div>
               <h2 className="text-lg font-bold text-white uppercase tracking-wider">Telemetry Terminal</h2>
@@ -244,9 +244,12 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
           const timestamp = parts[0] || '';
           const agent = parts[1]?.replace('[', '').replace(']', '') || '';
           const content = parts.slice(2).join(' ') || log;
-          const isError = content.includes('✗') || content.includes('ERROR');
-          const isSuccess = content.includes('✓') || content.includes('complete');
-          const isInfo = content.includes('🔨') || content.includes('🧪') || content.includes('👥');
+
+          // Remove emojis from content
+          const cleanContent = content.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+
+          const isError = content.toLowerCase().includes('error') || content.includes('failed');
+          const isSuccess = content.toLowerCase().includes('complete') || content.includes('success');
 
           return (
             <div key={index} className="terminal-entry mb-2 leading-relaxed px-2 py-1 rounded hover:bg-white/5 transition-colors">
@@ -262,12 +265,10 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
                     ? 'text-alert-red font-medium'
                     : isSuccess
                     ? 'text-success-green font-medium'
-                    : isInfo
-                    ? 'text-neon-blue'
-                    : 'text-gray-300'
+                    : 'text-neon-blue'
                 }`}
               >
-                {content}
+                {cleanContent}
               </span>
             </div>
           );
@@ -281,7 +282,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
             </div>
             {errors.map((error, index) => (
               <div key={index} className="terminal-entry mb-2 px-3 py-2 rounded-lg bg-alert-red/5 border border-alert-red/20 text-alert-red font-medium">
-                <span className="mr-2">✗</span>
+                <span className="mr-2">x</span>
                 {error}
               </div>
             ))}
@@ -292,7 +293,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
           <div className="mt-6 pt-4 border-t border-success-green/30 animate-fade-in">
             <div className="text-center py-6">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-success-green/10 border border-success-green/30 flex items-center justify-center">
-                <div className="text-3xl">🎉</div>
+                <div className="text-3xl text-success-green font-bold">v</div>
               </div>
               <div className="text-success-green font-bold text-lg uppercase tracking-wider text-glow-green mb-2">
                 Mission Complete
@@ -308,7 +309,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
           <div className="mt-6 pt-4 border-t border-alert-red/30 animate-fade-in">
             <div className="text-center py-6">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-alert-red/10 border border-alert-red/30 flex items-center justify-center">
-                <div className="text-3xl">❌</div>
+                <div className="text-3xl text-alert-red font-bold">x</div>
               </div>
               <div className="text-alert-red font-bold text-lg uppercase tracking-wider text-glow-red mb-2">
                 Mission Failed

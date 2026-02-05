@@ -1,26 +1,25 @@
-#!/usr/bin/env python3
-"""
-Example build123d script for testing
-"""
-
 from build123d import *
+import sys
 
-with Builder() as builder:
-    # Create a simple drone frame
-    base_plate = Box(100, 100, 5)
+print("Testing build123d Rot syntax...")
 
-    # Add motor mounts
-    motor_mounts = []
-    for x in [-40, 40]:
-        for y in [-40, 40]:
-            mount = Cylinder(8, 10)
-            mount = mount.located(Pos(x, y, 5))
-            motor_mounts.append(mount)
+try:
+    # Test 1: Simple tuple (common usage)
+    r1 = Rot(0, 0, 45)
+    print("✓ Rot(0, 0, 45) works")
+except Exception as e:
+    print(f"✗ Rot(0, 0, 45) failed: {e}")
 
-    # Combine everything
-    for mount in motor_mounts:
-        base_plate = base_plate + mount
+try:
+    # Test 2: Prompt syntax
+    r2 = Rot(axis=Axis.Z, angle=45)
+    print("✓ Rot(axis=Axis.Z, angle=45) works")
+except Exception as e:
+    print(f"✗ Rot(axis=Axis.Z, angle=45) failed: {e}")
 
-    part = base_plate
-
-print("✓ Test part created successfully")
+try:
+    # Test 3: Rotation class if it exists
+    r3 = Rotation(0, 0, 45)
+    print("✓ Rotation(0, 0, 45) works")
+except Exception as e:
+    print(f"✗ Rotation(0, 0, 45) failed: {e}")

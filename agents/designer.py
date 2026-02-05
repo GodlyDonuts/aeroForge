@@ -109,19 +109,20 @@ with BuildPart() as builder:
     # Arm positions at 45-degree intervals
     arm_1 = Cylinder(radius=arm_radius, height=arm_height,
                      align=(Align.CENTER, Align.CENTER, Align.CENTER))
-    arm_1 = Rot(axis=Axis.Z, angle=45) * Pos(arm_length/2, arm_length/2, 0) * arm_1
+    # Rotate 45 degrees around Z axis using Rot(0, 0, 45)
+    arm_1 = Rot(0, 0, 45) * Pos(arm_length/2, arm_length/2, 0) * arm_1
 
     arm_2 = Cylinder(radius=arm_radius, height=arm_height,
                      align=(Align.CENTER, Align.CENTER, Align.CENTER))
-    arm_2 = Rot(axis=Axis.Z, angle=135) * Pos(-arm_length/2, arm_length/2, 0) * arm_2
+    arm_2 = Rot(0, 0, 135) * Pos(-arm_length/2, arm_length/2, 0) * arm_2
 
     arm_3 = Cylinder(radius=arm_radius, height=arm_height,
                      align=(Align.CENTER, Align.CENTER, Align.CENTER))
-    arm_3 = Rot(axis=Axis.Z, angle=225) * Pos(-arm_length/2, -arm_length/2, 0) * arm_3
+    arm_3 = Rot(0, 0, 225) * Pos(-arm_length/2, -arm_length/2, 0) * arm_3
 
     arm_4 = Cylinder(radius=arm_radius, height=arm_height,
                      align=(Align.CENTER, Align.CENTER, Align.CENTER))
-    arm_4 = Rot(axis=Axis.Z, angle=315) * Pos(arm_length/2, -arm_length/2, 0) * arm_4
+    arm_4 = Rot(0, 0, 315) * Pos(arm_length/2, -arm_length/2, 0) * arm_4
 
     # COMPONENT 3: MOTOR MOUNTS at arm ends
     mount_radius = 25
