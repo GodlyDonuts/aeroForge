@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, AxesHelper, Stats } from '@react-three/drei';
+import { OrbitControls, Grid, Stats } from '@react-three/drei';
 import { getMissionResults, getFileUrl } from '../api';
 
 function ThreeDViewer({ missionId, missionStatus }) {
@@ -34,7 +34,7 @@ function ThreeDViewer({ missionId, missionStatus }) {
   const GridHelper = () => (
     <group>
       <Grid args={[20, 20]} cellSize={1} cellThickness={0.5} cellColor="#00d4ff" sectionSize={5} sectionThickness={1} sectionColor="#7b2cbf" fadeDistance={30} fadeStrength={1} followCamera={false} infiniteGrid />
-      <AxesHelper args={[2]} />
+      <axesHelper args={[2]} />
     </group>
   );
 

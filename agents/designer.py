@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Designer Agent
-Generates build123d CAD code from mission requirements using OpenRouter
+Designer Agent - Component-Based Generation Strategy
+Generates structured drone assemblies with fuselage, arms, and motor mounts
 """
 
 import os
@@ -18,9 +18,7 @@ from core.geometry import SceneBuilder
 
 def designer_node(state: AeroForgeState) -> AeroForgeState:
     """
-    Designer agent node in the workflow graph.
-
-    Translates mission requirements (and feedback) into build123d CAD code.
+    Designer agent node - Generates component-based drone assemblies.
 
     Args:
         state: Current workflow state
@@ -30,7 +28,7 @@ def designer_node(state: AeroForgeState) -> AeroForgeState:
     """
 
     print("\n" + "=" * 70)
-    print("🔨 DESIGNER AGENT: Generating CAD code")
+    print("🔨 DESIGNER AGENT: Component-Based Drone Assembly Generation")
     print("=" * 70)
 
     # Update status
@@ -43,7 +41,7 @@ def designer_node(state: AeroForgeState) -> AeroForgeState:
         state["errors"].append("OPENROUTER_API_KEY not found")
         return state
 
-    # Initialize OpenRouter model (using Google Gemini 3 Pro for code generation)
+    # Initialize OpenRouter model
     try:
         llm = ChatOpenAI(
             model="google/gemini-3-pro-preview",
@@ -55,71 +53,116 @@ def designer_node(state: AeroForgeState) -> AeroForgeState:
         state["errors"].append(f"Failed to initialize OpenRouter: {e}")
         return state
 
-    # Construct prompt
-    system_prompt = """You are an expert mechanical engineer specializing in build123d CAD programming.
+    # Component-based generation system prompt
+    system_prompt = """You are an expert aerospace CAD engineer specializing in build123d parametric modeling.
 
-Your task is to generate valid Python code using the build123d library to create 3D models.
+CRITICAL: You must generate a structured DRONE ASSEMBLY with the following components:
 
-CRITICAL RULES:
-1. Always use Builder mode: `with Builder() as builder:`
-2. Define a final `part` variable that contains your complete model
-3. Use precise dimensions (in millimeters unless specified otherwise)
-4. Ensure all geometry is valid (no self-intersections, closed shapes)
-5. Use appropriate geometric primitives: Box, Cylinder, Cone, Sphere
-6. Use union, subtract, and intersect operations carefully
-7. Add comments explaining key design decisions
-8. For aerospace parts, consider aerodynamics and weight reduction
+1. CENTRAL FUSELAGE (Body/Shell)
+   - Create using Builder: with Builder() as builder:
+   - Use Box() or extruded profiles
+   - Size: ~100-200mm in length, ~60-100mm in width/height
+   - Position at origin (0, 0, 0)
 
-BUILD123D PATTERN:
+2. FOUR ARMS (Structure)
+   - Extend outward in X pattern or + pattern
+   - Use Cylinder() for tubular arms (length ~200-300mm, radius ~10-15mm)
+   - Position at 90-degree intervals
+   - Create and combine them into a single assembly
+
+3. FOUR MOTOR MOUNTS (End of arms)
+   - Create at the ends of each arm
+   - Use Cylinder() or Box() for mount plates
+   - Size: ~40-60mm diameter, ~10-15mm thick
+   - Position flush with arm ends
+
+COMPONENT-BASED GENERATION RULES:
+1. ALWAYS use Builder mode: with Builder() as builder:
+2. Define each component separately FIRST
+3. Combine all components using builder.add(component1 + component2 + ...)
+4. The final assembly MUST be stored in 'part' variable
+5. Use Compound() or union operations to combine parts
+6. Center the fuselage at origin
+7. Ensure proper alignment of all components
+
+MANDATORY CODE STRUCTURE:
 ```python
 from build123d import *
 
-# Always use Builder mode
+# Initialize builder
 with Builder() as builder:
-    # Create base shape
-    base = Box(100, 50, 5)
-    
-    # Add features
-    holes = Cylinder(5, 10)
-    builder.add(base - holes)
-    
-    # Final part assignment
+    # COMPONENT 1: FUSELAGE
+    # Define fuselage geometry here
+    fuselage = Box(...)
+
+    # COMPONENT 2: ARMS
+    # Create 4 arms extending outward
+    arm_1 = Cylinder(...).located(Pos(...))
+    arm_2 = Cylinder(...).located(Pos(...))
+    arm_3 = Cylinder(...).located(Pos(...))
+    arm_4 = Cylinder(...).located(Pos(...))
+    arms = arm_1 + arm_2 + arm_3 + arm_4
+
+    # COMPONENT 3: MOTOR MOUNTS
+    # Create mounts at arm ends
+    mount_1 = Cylinder(...).located(Pos(...))
+    mount_2 = Cylinder(...).located(Pos(...))
+    mount_3 = Cylinder(...).located(Pos(...))
+    mount_4 = Cylinder(...).located(Pos(...))
+    mounts = mount_1 + mount_2 + mount_3 + mount_4
+
+    # ASSEMBLE ALL COMPONENTS
+    full_assembly = fuselage + arms + mounts
+
+    # EXPORT FINAL PART
+    builder.add(full_assembly)
     part = builder.part
 ```
 
-IMPORTANT: Your code must execute without errors and produce a valid part object."""
+DESIGN PARAMETERS FROM MISSION:
+- Parse mission for payload requirements
+- Adjust arm length based on thrust needs
+- Adjust fuselage size based on payload volume
+- Use realistic aerospace dimensions
 
-    # Build user prompt based on iteration
-    if state["iteration"] == 1:
-        user_prompt = f"""Generate build123d Python code for the following aerospace design:
+VALIDATION CHECKS:
+1. Final part must be a valid build123d Part or Compound
+2. All components must be properly joined
+3. No self-intersections or gaps
+4. Reasonable center of mass near fuselage center
+
+Return ONLY valid Python code. No explanations. No markdown code blocks."""
+
+    # User prompt with mission requirements
+    feedback = state.get("designer_feedback", "")
+    iteration = state.get("iteration", 1)
+
+    if iteration == 1:
+        user_prompt = f"""Generate a complete drone assembly with component-based structure.
 
 MISSION REQUIREMENTS:
 {state['mission_prompt']}
 
-Create a complete, manufacturable 3D model. Focus on:
-- Structural integrity
-- Weight optimization
-- Aerodynamic considerations
+Create a drone with:
+1. Central fuselage (body/shell)
+2. Four arms extending outward
+3. Four motor mounts at arm ends
 
-Return ONLY the Python code, no explanations."""
+Use realistic aerospace dimensions and proper build123d Builder mode."""
     else:
-        user_prompt = f"""Revise the build123d Python code based on simulation feedback:
+        user_prompt = f"""Refine the drone assembly based on simulation feedback.
 
-MISSION REQUIREMENTS:
-{state['mission_prompt']}
+MISSION: {state['mission_prompt']}
+ITERATION: {iteration}
 
-PREVIOUS DESIGN ISSUES/FEEDBACK:
-{state.get('designer_feedback', 'No specific feedback')}
+FEEDBACK FROM SIMULATION:
+{feedback if feedback else 'No specific feedback. Optimize for stability and aerodynamics.'}
 
-PREVIOUS ITERATION {state['iteration'] - 1} CODE:
-{state.get('cad_code', 'No previous code')}
+Improve the design while maintaining the component structure (fuselage + 4 arms + 4 mounts).
 
-PREVIOUS ERRORS:
-{state.get('errors', [])}
+Return ONLY the improved Python code."""
 
-Generate improved code that addresses the feedback. Return ONLY the Python code."""
-
-    # Call Gemini
+    # Call AI
     try:
         messages = [
             SystemMessage(content=system_prompt),
@@ -129,25 +172,44 @@ Generate improved code that addresses the feedback. Return ONLY the Python code.
         response = llm.invoke(messages)
         generated_code = response.content
 
-        # Clean up response (remove markdown code blocks if present)
+        # Clean up response
         if "```python" in generated_code:
             generated_code = generated_code.split("```python")[1].split("```")[0].strip()
         elif "```" in generated_code:
             generated_code = generated_code.split("```")[1].split("```")[0].strip()
 
-        # Save to state
+        # Store in state
         state["cad_code"] = generated_code
         state["design_history"].append(generated_code)
 
-        print(f"✓ Generated CAD code (iteration {state['iteration']})")
+        print(f"✓ Component-based assembly generated (iteration {iteration})")
         print(f"  Code length: {len(generated_code)} characters")
 
-        # Validate code by attempting to parse
+        # Validate code
         try:
             compile(generated_code, '<string>', 'exec')
             print("  ✓ Code syntax is valid")
+
+            # Verify component structure
+            has_builder = "with Builder()" in generated_code
+            has_fuselage = any(word in generated_code.lower() for word in ["fuselage", "body", "shell", "box"])
+            has_arms = "arm" in generated_code.lower()
+            has_mount = "mount" in generated_code.lower()
+
+            if has_builder:
+                print("  ✓ Builder mode detected")
+            if has_fuselage:
+                print("  ✓ Fuselage component detected")
+            if has_arms:
+                print("  ✓ Arms components detected")
+            if has_mount:
+                print("  ✓ Motor mount components detected")
+
+            if not all([has_builder, has_fuselage, has_arms, has_mount]):
+                print("  ⚠ Warning: Some components may be missing")
+
         except SyntaxError as e:
-            print(f"  ✗ Syntax error detected: {e}")
+            print(f"  ✗ Syntax error: {e}")
             state["errors"].append(f"Syntax error: {e}")
 
     except Exception as e:
