@@ -20,3 +20,8 @@ stpyvista                  # 3D Mesh Rendering for Streamlit
 vtk                        # Visualization Toolkit
 panel                      # Interactive Dashboards
 watchdog                   # File monitoring
+
+# Backend Server
+fastapi>=0.104.0           # Modern Python web framework
+uvicorn[standard]>=0.24.0  # ASGI server with websocket support
+websockets>=12.0           # WebSocket support
