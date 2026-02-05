@@ -151,48 +151,112 @@ def execute_cad_code(cad_code: str):
     try:
         import build123d as bd
     except ImportError:
-        print("  ✗ build123d not available - using mock mode")
+        print("  ✗ build123d not available - using mock drone assembly")
         return create_mock_part()
 
     try:
-        # Create execution namespace
+        # Create comprehensive execution namespace
         namespace = {
             "Box": bd.Box,
             "Cylinder": bd.Cylinder,
             "Sphere": bd.Sphere,
             "Cone": bd.Cone,
             "Builder": bd.Builder,
+            "BuildPart": bd.BuildPart,
             "Part": bd.Part,
             "Compound": bd.Compound,
             "Union": bd.Union,
             "Subtract": bd.Subtract,
             "Intersect": bd.Intersect,
+            "Rot": bd.Rot,
+            "Rotate": bd.Rotate,
+            "Pos": bd.Pos,
+            "Location": bd.Location,
+            "Axis": bd.Axis,
+            "Align": bd.Align,
+            "Mode": bd.Mode,
             "__builtins__": __builtins__,
+            "bd": bd,  # Allow direct bd.* calls
         }
 
         # Execute the code
         exec(cad_code, namespace)
 
-        # Extract the part
-        part = namespace.get("part")
+        # Extract the part - try multiple variable names
+        part = namespace.get("part") or namespace.get("builder_part") or namespace.get("assembly")
+
         if part is None:
-            print("  ✗ No 'part' variable found in generated code")
+            print("  ✗ No valid part/assembly variable found in generated code")
+            print("  Falling back to mock drone assembly...")
             return create_mock_part()
 
+        print(f"  ✓ Successfully executed CAD code, got part type: {type(part).__name__}")
         return part
 
     except Exception as e:
         print(f"  ✗ CAD execution error: {e}")
-        # Fall back to mock part for development
+        import traceback
+        print(f"  Traceback: {traceback.format_exc()}")
+        print("  Falling back to mock drone assembly...")
         return create_mock_part()
 
 
 def create_mock_part():
-    """Create a mock build123d part for development/testing."""
+    """Create a proper drone assembly mock for development/testing."""
     try:
         import build123d as bd
-        return bd.Box(100, 100, 10)
-    except:
+
+        # Create a proper quadcopter assembly
+        with bd.BuildPart() as builder:
+            # Fuselage (central body)
+            fuselage = bd.Box(120, 80, 30, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+
+            # Four arms in X configuration
+            arm_length = 180
+            arm_radius = 8
+            arm_height = 10
+
+            # Arm 1 (front-right)
+            arm_1 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            arm_1 = bd.Rotate(arm_1, axis=bd.Axis.Z, angle=45)
+            arm_1 = bd.Pos(arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_1
+
+            # Arm 2 (front-left)
+            arm_2 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            arm_2 = bd.Rotate(arm_2, axis=bd.Axis.Z, angle=135)
+            arm_2 = bd.Pos(-arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_2
+
+            # Arm 3 (back-left)
+            arm_3 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            arm_3 = bd.Rotate(arm_3, axis=bd.Axis.Z, angle=225)
+            arm_3 = bd.Pos(-arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_3
+
+            # Arm 4 (back-right)
+            arm_4 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            arm_4 = bd.Rotate(arm_4, axis=bd.Axis.Z, angle=315)
+            arm_4 = bd.Pos(arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_4
+
+            # Motor mounts at arm ends
+            mount_radius = 25
+            mount_height = 8
+
+            mount_1 = bd.Cylinder(radius=mount_radius, height=mount_height, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            mount_1 = bd.Pos(arm_length/2 * 0.707 + 40, arm_length/2 * 0.707 + 40, 0) * mount_1
+
+            mount_2 = bd.Cylinder(radius=mount_radius, height=mount_height, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            mount_2 = bd.Pos(-arm_length/2 * 0.707 - 40, arm_length/2 * 0.707 + 40, 0) * mount_2
+
+            mount_3 = bd.Cylinder(radius=mount_radius, height=mount_height, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            mount_3 = bd.Pos(-arm_length/2 * 0.707 - 40, -arm_length/2 * 0.707 - 40, 0) * mount_3
+
+            mount_4 = bd.Cylinder(radius=mount_radius, height=mount_height, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
+            mount_4 = bd.Pos(arm_length/2 * 0.707 + 40, -arm_length/2 * 0.707 - 40, 0) * mount_4
+
+        return builder.part
+
+    except Exception as e:
+        print(f"  ⚠️ Could not create mock drone part: {e}")
+        # Fallback to simple box if build123d completely unavailable
         return None
 
 

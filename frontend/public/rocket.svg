@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background Glow -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#7b2cbf"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Glow -->
+  <circle cx="256" cy="256" r="200" fill="url(#glow)"/>
+
+  <!-- Rocket Body -->
+  <path d="M256 64 L300 180 L320 300 L256 340 L192 300 L212 180 Z" fill="url(#bodyGrad)" stroke="#00f0ff" stroke-width="2"/>
+
+  <!-- Window -->
+  <circle cx="256" cy="200" r="40" fill="#0a0a0f" stroke="#7b2cbf" stroke-width="3"/>
+
+  <!-- Window Reflection -->
+  <ellipse cx="245" cy="190" rx="12" ry="8" fill="rgba(255,255,255,0.3)"/>
+
+  <!-- Fins -->
+  <path d="M192 300 L140 380 L192 340 Z" fill="#7b2cbf" stroke="#00f0ff" stroke-width="1"/>
+  <path d="M320 300 L372 380 L320 340 Z" fill="#7b2cbf" stroke="#00f0ff" stroke-width="1"/>
+  <path d="M256 340 L256 420 L230 380 Z" fill="#7b2cbf" stroke="#00f0ff" stroke-width="1"/>
+  <path d="M256 340 L256 420 L282 380 Z" fill="#7b2cbf" stroke="#00f0ff" stroke-width="1"/>
+
+  <!-- Engine Glow -->
+  <ellipse cx="256" cy="400" rx="30" ry="10" fill="#ffd700" opacity="0.8"/>
+  <ellipse cx="256" cy="400" rx="20" ry="6" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Stars -->
+  <circle cx="100" cy="100" r="2" fill="#00f0ff" opacity="0.8"/>
+  <circle cx="400" cy="80" r="1.5" fill="#7b2cbf" opacity="0.8"/>
+  <circle cx="450" cy="200" r="2" fill="#00f0ff" opacity="0.6"/>
+  <circle cx="80" cy="300" r="1.5" fill="#7b2cbf" opacity="0.7"/>
+  <circle cx="420" cy="400" r="2" fill="#00f0ff" opacity="0.8"/>
+  <circle cx="60" cy="450" r="1" fill="#7b2cbf" opacity="0.6"/>
+</svg>

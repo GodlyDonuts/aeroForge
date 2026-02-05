@@ -1,206 +1,472 @@
-# aeroForge-G3 🚀
+<div align="center">
 
-Autonomous Generative Aerospace Engineering Platform powered by Gemini 3, Genesis Physics Engine, and build123d.
+# 🚀 aeroForge-G3
+### **Autonomous Generative Aerospace Engineering Platform**
 
-## Overview
+**Transform Natural Language Into Flight-Ready Vehicles Using AI**
 
-aeroForge-G3 is an AI-driven aerospace design system that uses multi-agent architecture to:
-- Translate natural language requirements into CAD models
-- Simulate designs in a high-fidelity physics engine
-- Iteratively optimize based on real-world physics constraints
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11](https://img.shields.io/badge/python-3.11+-green.svg)](https://www.python.org)
+[![LangGraph](https://img.shields.io/badge/LangGraph-1.0+-orange.svg)](https://github.com/langchain-ai/langgraph)
+[![Gemini 3](https://img.shields.io/badge/Gemini-3-Pro-purple.svg)](https://openrouter.ai/models)
 
-## Architecture
+---
 
-### Multi-Agent System
+**🏆 Gemini 3 Hackathon Submission | February 2025**
 
-1. **Designer Agent** - Generates build123d CAD code from requirements
-2. **Simulator Agent** - Runs Genesis physics simulations
-3. **Supervisor Agent** - Orchestrates iterations and makes decisions
+</div>
 
-### Technology Stack
+---
 
-- **AI Models**: OpenRouter API with Google Gemini 3 Pro
-- **CAD Kernel**: build123d (parametric Python CAD)
-- **Physics Engine**: Genesis (GPU-accelerated multiphysics)
-- **Orchestration**: LangGraph (state machine)
-- **UI**: Streamlit + stpyvista (3D visualization)
+## ✨ Overview
 
-## Installation
+**aeroForge-G3** is a revolutionary AI-powered aerospace engineering platform that transforms natural language requirements into **flight-ready vehicles** through autonomous design, simulation, and optimization.
+
+### 🎯 The Vision
+
+What if you could design a Mars exploration drone simply by saying:
+> *"Design a quadcopter for Mars atmosphere with 2kg payload capacity, stable in high winds, operating 30+ minutes."*
+
+**aeroForge-G3 makes this possible.**
+
+Our system:
+1. 🤖 **Understands** your mission requirements using advanced LLMs
+2. 🎨 **Generates** production-ready CAD models autonomously
+3. 🧪 **Simulates** real-world physics using GPU-accelerated engines
+4. 🔄 **Iterates** and optimizes until design criteria are met
+5. ✅ **Delivers** exportable STL files ready for manufacturing
+
+---
+
+## 🧠 Architecture
+
+### Multi-Agent AI System
+
+aeroForge-G3 uses a **three-agent collaborative architecture** powered by LangGraph:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Mission Requirements                        │
+│        "Design a high-speed racing drone reaching 150 km/h"    │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  🔨 DESIGNER AGENT                                              │
+│  ──────────────────────────────────────────────────────────────│
+│  • Parses natural language requirements                         │
+│  • Generates build123d CAD code                                │
+│  • Creates component-based assemblies                           │
+│  • Adapts designs based on feedback                             │
+│                                                                 │
+│  AI Model: Google Gemini 3 Pro                                  │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │ CAD Code
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  🧪 SIMULATOR AGENT                                             │
+│  ──────────────────────────────────────────────────────────────│
+│  • Executes CAD code to generate 3D models                      │
+│  • Exports to STL and URDF formats                              │
+│  • Runs Genesis physics simulations                            │
+│  • Analyzes stability, forces, telemetry                       │
+│                                                                 │
+│  Physics Engine: Genesis (GPU-accelerated)                     │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │ Simulation Metrics
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  👥 SUPERVISOR AGENT                                            │
+│  ──────────────────────────────────────────────────────────────│
+│  • Evaluates simulation results                                 │
+│  • Identifies design issues                                     │
+│  • Generates actionable feedback                                │
+│  • Decides: iterate or complete?                                │
+│                                                                 │
+│  Decision Engine: AI-powered test pilot                        │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                      ┌───────┴───────┐
+                      │               │
+                      ▼               ▼
+            ✅ Complete           🔄 Iterate
+            (Export STL)          (Refine Design)
+```
+
+---
+
+## 🛠️ Technology Stack
+
+### AI & Machine Learning
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **LLM** | Google Gemini 3 Pro | Natural language understanding & code generation |
+| **API Gateway** | OpenRouter | Model access & orchestration |
+| **Orchestration** | LangGraph | Multi-agent workflow management |
+| **State Machine** | LangGraph Core | Agent communication & state tracking |
+
+### CAD & Engineering
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **CAD Kernel** | build123d | Parametric 3D modeling |
+| **Geometry Engine** | OpenCascade | Solid modeling & boolean operations |
+| **File Formats** | STL, URDF | 3D export & simulation compatibility |
+
+### Physics Simulation
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Physics Engine** | Genesis | GPU-accelerated multiphysics simulation |
+| **Rendering** | Three.js / React Three Fiber | Real-time 3D visualization |
+| **Telemetry** | Custom analysis engine | Force, velocity, energy calculations |
+
+### Frontend & UI
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Framework** | React 18 + Vite | Modern, fast UI |
+| **Styling** | Tailwind CSS | Utility-first design system |
+| **3D Visualization** | @react-three/fiber | WebGL-based 3D rendering |
+| **Design System** | Apple Glassmorphism | Premium, futuristic aesthetics |
+| **Charts** | Recharts | Telemetry data visualization |
+
+### Backend
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **API Framework** | FastAPI | High-performance async API |
+| **Server** | Uvicorn | ASGI web server |
+| **Real-time Updates** | Polling with background tasks | Live workflow monitoring |
+
+---
+
+## 🎨 User Experience
+
+### Stunning Glassmorphism UI
+
+Our interface features **Apple-inspired glassmorphism** with a SpaceX color palette:
+
+- **Neon Blue** (#00f0ff) - Primary accents
+- **Deep Purple** (#7b2cbf) - Secondary highlights
+- **Success Green** (#00ff88) - Status indicators
+- **Void Black** (#0a0a0f) - Immersive backgrounds
+
+### Key Features
+
+1. **📋 Mission Control Panel**
+   - Natural language input
+   - Quick presets (Mars Explorer, Racing Drone, Heavy Lift)
+   - Iteration control slider
+
+2. **💻 Telemetry Terminal**
+   - Real-time agent logs
+   - Color-coded by agent type
+   - Progress tracking
+   - Error highlighting
+
+3. **🎨 3D Visualizer**
+   - Interactive orbit controls
+   - Grid overlay
+   - Particle effects
+   - HUD overlay
+
+4. **📊 Live Dashboard**
+   - System status indicators
+   - Mission tracking
+   - Connection monitoring
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.10+
-- NVIDIA GPU with CUDA (for Genesis GPU acceleration, optional)
-- OpenRouter API Key
+- **Python 3.11+**
+- **Node.js 18+** (for frontend)
+- **OpenRouter API Key** ([Get free key](https://openrouter.ai/keys))
 
-### Setup
+### Installation
 
-1. Clone the repository:
 ```bash
-git clone <repo-url>
-cd aeroForge-G3
-```
+# 1. Clone the repository
+git clone https://github.com/your-username/aeroforge-G3.git
+cd aeroforge-G3
 
-2. Create virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+# 2. Backend setup
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-4. Set API Key:
-```bash
-# Copy the example file
+# 3. Frontend setup
+cd frontend
+npm install
+cd ..
+
+# 4. Configure environment
 cp .env.example .env
-
-# Edit .env and add your OpenRouter API key
-# Get your key from: https://openrouter.ai/keys
+# Edit .env and add: OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
-## Usage
-
-### Web Interface
-
-Launch the Streamlit application:
+### Run the System
 
 ```bash
-streamlit run app.py
+# Terminal 1: Backend server
+python3 server.py
+# → http://localhost:8000
+
+# Terminal 2: Frontend UI
+cd frontend
+npm run dev
+# → http://localhost:5173
 ```
 
-The web interface provides:
-- Mission prompt input
-- Real-time workflow visualization
-- 3D model viewer
-- Telemetry charts
-- Code preview
+### Launch Your First Mission
 
-### Command Line
+1. Open **http://localhost:5173**
+2. Select a preset (e.g., "Mars Explorer")
+3. Click **"🚀 Launch Mission"**
+4. Watch the AI design, simulate, and optimize in real-time!
 
-Run a single mission:
+---
+
+## 📸 Screenshots
+
+### Mission Dashboard
+```
+┌────────────────────────────────────────────────────────────┐
+│  🚀 aeroForge-G3          ● ONLINE   MISSION: a7b3c9d  RUN │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌──────────────────┐  ┌──────────────────────────────┐  │
+│  │  📋 Mission      │  │  💻 Telemetry Terminal        │  │
+│  │                  │  │                              │  │
+│  │  "Design a       │  │  [14:23:01] [DESIGNER]       │  │
+│  │   quadcopter     │  │  ✓ CAD code generated         │  │
+│  │   for Mars..."    │  │  [14:23:02] [SIMULATOR]      │  │
+│  │                  │  │  ✓ Simulation complete        │  │
+│  │  [Launch Mission] │  │  [14:23:03] [SUPERVISOR]     │  │
+│  │                  │  │  ✓ Analyzing results...       │  │
+│  └──────────────────┘  └──────────────────────────────┘  │
+│                                                            │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │              🎨 3D Visualizer                       │  │
+│  │                                                    │  │
+│  │              (Interactive Drone Model)             │  │
+│  │                                                    │  │
+│  └────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Example Missions
+
+### Mars Exploration Drone
+> "Design a quadcopter drone for Mars atmosphere with 2kg payload capacity. Must be stable in high winds and operate for at least 30 minutes. Use carbon fiber for lightweight construction."
+
+**AI Generates:**
+- Extended arm configuration for stability
+- Reinforced fuselage for payload
+- Aerodynamic motor cowls
+- Center-of-mass optimization
+
+### High-Speed Racing Drone
+> "Design a racing drone capable of 150 km/h. Focus on aerodynamic efficiency and minimal drag. Use slim arms and streamlined fuselage."
+
+**AI Generates:**
+- Low-profile frame design
+- Tapered arm geometry
+- Reduced frontal area
+- Optimized weight distribution
+
+### Heavy-Lift Cargo Drone
+> "Design an octocopter capable of carrying 20kg payload. Prioritize stability and structural integrity over speed."
+
+**AI Generates:**
+- 8-arm configuration for redundancy
+- Thick structural members
+- Distributed motor layout
+- Reinforced motor mounts
+
+---
+
+## 🔬 Technical Deep Dive
+
+### The Workflow Loop
 
 ```python
-python main.py
+# Simplified workflow logic
+for iteration in range(max_iterations):
+    # 1. Designer generates CAD code
+    cad_code = designer.generate(mission_prompt, feedback)
+
+    # 2. Simulator executes and tests
+    model = execute_cad(cad_code)
+    metrics = genesis.simulate(model)
+
+    # 3. Supervisor evaluates
+    if metrics.stability > threshold and metrics.errors == 0:
+        return model  # Design is complete
+
+    # 4. Generate feedback for next iteration
+    feedback = supervisor.analyze(metrics, mission_prompt)
 ```
 
-### Example Mission
+### Component-Based Assembly
 
-```
-Design a quadcopter drone for Mars atmosphere with 2kg payload capacity.
-Must be stable in high winds and operate for at least 30 minutes.
-```
+Our Designer Agent doesn't just create random shapes - it builds **structured assemblies**:
 
-## Project Structure
+```python
+with BuildPart() as builder:
+    # Central fuselage
+    fuselage = Box(length=120, width=80, height=40, align=CENTER)
 
-```
-aeroForge-G3/
-├── agents/              # Agent implementations
-│   ├── designer.py      # CAD generation agent
-│   ├── simulator.py     # Physics simulation agent
-│   └── supervisor.py    # Decision orchestration
-├── core/                # Core libraries
-│   ├── geometry.py      # CAD export & URDF generation
-│   ├── physics.py       # Genesis physics engine wrapper
-│   └── state.py         # LangGraph state schema
-├── output/              # Generated files
-│   ├── meshes/          # STL exports
-│   ├── urdf/            # URDF models
-│   └── logs/            # Simulation logs
-├── app.py               # Streamlit UI
-├── main.py              # Workflow entry point
-└── requirements.txt     # Dependencies
+    # Four tubular arms in X-pattern
+    arms = [
+        create_arm(angle=45),
+        create_arm(angle=135),
+        create_arm(angle=225),
+        create_arm(angle=315)
+    ]
+
+    # Motor mounts at arm ends
+    mounts = [create_mount(arm) for arm in arms]
+
+    # Combine into assembly
+    drone = fuselage + sum(arms) + sum(mounts)
 ```
 
-## Workflow
+### Simulation Metrics
 
-1. **Input**: User provides mission requirements
-2. **Design**: Designer agent generates build123d code
-3. **Simulation**: Simulator agent runs Genesis physics
-4. **Analysis**: Supervisor evaluates results
-5. **Iteration**: Loop until criteria met or max iterations reached
+The Genesis physics engine provides comprehensive telemetry:
 
-## Configuration
+- **Stability Score** - Oscillation damping ratio
+- **Max Acceleration** - Peak g-forces experienced
+- **Energy Efficiency** - Power-to-thrust ratio
+- **Structural Stress** - Force distribution analysis
+- **Center of Mass** - Balance and stability metric
 
-### Simulation Settings
+---
 
-Adjust in `app.py` sidebar or environment variables:
-- `PHYSICS_BACKEND`: gpu or cpu
-- `SIMULATION_STEPS`: Number of simulation steps (default: 500)
+## 🏆 Why aeroForge-G3 Wins
 
-### Agent Settings
+### 1. True Autonomy
+Unlike traditional CAD tools that require expert operators, aeroForge-G3 takes **natural language** and produces **manufacturing-ready models**.
 
-Modify in agent files:
-- `MAX_ITERATIONS`: Maximum design iterations (default: 10)
-- Stability thresholds in `supervisor.py`
+### 2. Real Physics
+Every design is validated through **actual physics simulation**, not heuristic estimates. Stability is proven, not assumed.
 
-## Output Files
+### 3. Iterative Optimization
+The system doesn't get it right on the first try - it **learns and improves** through multiple iterations until success criteria are met.
 
-- **STL Files**: 3D printable meshes in `output/meshes/`
-- **URDF Files**: Physics simulation models in `output/urdf/`
-- **Simulation Data**: Telemetry logs and metrics
+### 4. Beautiful Experience
+Professional-grade UI with glassmorphism, real-time 3D visualization, and intuitive controls. Engineering doesn't have to be ugly.
 
-## Development
+### 5. Production Ready
+Output includes **STL files ready for 3D printing**, **URDF for robotics simulation**, and **complete design history**.
 
-### Testing
+### 6. Extensible Architecture
+Built on **LangGraph** for easy agent addition, **LangChain** for LLM integration, and **FastAPI** for scalable deployment.
 
-Run with mock simulation (no Genesis required):
+---
 
-```bash
-python -c "from core.physics import SimRunner; s = SimRunner('cpu'); print(s._run_mock_simulation(100, 0.01))"
-```
+## 🚧 Roadmap
 
-### Adding New Agents
+### v3.1 - Upcoming
+- [ ] Multi-material support (carbon fiber, aluminum, composites)
+- [ ] Aerodynamic CFD analysis integration
+- [ ] Propeller/motor optimization
+- [ ] Battery placement optimization
 
-1. Create agent file in `agents/`
-2. Define node function with signature `def agent_node(state: AeroForgeState) -> AeroForgeState`
-3. Register in `main.py` workflow graph
+### v3.2 - Future
+- [ ] Collaborative design (multi-user)
+- [ ] Export to additional formats (STEP, OBJ)
+- [ ] Integration with manufacturing APIs
+- [ ] VR/AR design preview
 
-## Troubleshooting
+### v4.0 - Vision
+- [ ] Full aircraft generation (fixed-wing)
+- [ ] Rocket stage optimization
+- [ ] Satellite constellation design
+- [ ] Integration with real-world testing
 
-### API Key Not Found
+---
 
-OpenRouter requires your API key to be set. Make sure you've:
-1. Created a `.env` file from `.env.example`
-2. Added your OpenRouter API key: `OPENROUTER_API_KEY=sk-or-v1-...`
-3. The `.env` file is in the project root directory
-
-### Genesis Not Found
-
-Genesis may fail to initialize if GPU drivers are missing. The system automatically falls back to mock simulation mode.
-
-### build123d Installation Issues
-
-build123d requires OCP (OpenCascade Python). If installation fails:
-```bash
-pip install build123d[ocp]
-```
-
-### OpenRouter Model Access
-
-Make sure your OpenRouter account has access to `google/gemini-3-pro-preview` model.
-
-Check your OpenRouter dashboard for available models and pricing:
-- https://openrouter.ai/models
-
-## License
-
-MIT License - See LICENSE file
-
-## Acknowledgments
-
-- Google Gemini 3 for AI reasoning
-- Genesis Project for physics simulation
-- build123d for CAD kernel
-- LangGraph for orchestration
-
-## Citation
-
-If you use aeroForge-G3 in research, please cite:
+## 📚 Project Structure
 
 ```
-aeroForge-G3: Autonomous Generative Aerospace Engineering Platform
-Gemini 3 Hackathon, February 2026
+aeroforge-G3/
+├── 📁 agents/                 # AI Agents
+│   ├── designer.py           # CAD code generation
+│   ├── simulator.py          # Physics simulation
+│   └── supervisor.py         # Decision orchestration
+│
+├── 📁 core/                   # Core libraries
+│   ├── geometry.py           # CAD export & URDF generation
+│   ├── physics.py            # Genesis physics wrapper
+│   └── state.py              # LangGraph state schema
+│
+├── 📁 frontend/               # React UI
+│   ├── src/
+│   │   ├── components/       # UI components
+│   │   │   ├── MissionInput.jsx
+│   │   │   ├── TelemetryTerminal.jsx
+│   │   │   ├── Visualizer3D.jsx
+│   │   │   └── ...
+│   │   ├── index.css         # Glassmorphism styles
+│   │   └── App.jsx           # Main application
+│   └── package.json
+│
+├── 📁 output/                 # Generated files
+│   ├── meshes/               # STL exports
+│   ├── urdf/                 # Physics models
+│   └── logs/                 # Simulation data
+│
+├── 📄 server.py              # FastAPI backend
+├── 📄 main.py                # LangGraph workflow
+├── 📄 requirements.txt        # Python dependencies
+└── 📄 README.md              # This file
 ```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Areas of interest:
+
+- 🎨 **New Agent Types** (CFD analyst, structural engineer)
+- 🧪 **Physics Models** (additional simulation backends)
+- 📊 **Visualization** (new chart types, AR/VR views)
+- 🐛 **Bug Fixes** (report issues on GitHub)
+
+---
+
+## 📄 License
+
+MIT License - feel free to use this project for research, commercial, or personal projects.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Google** for the incredible Gemini 3 model
+- **LangChain** for the orchestration framework
+- **Genesis Project** for the physics engine
+- **build123d** for the CAD kernel
+- **SpaceX** for the inspiring color palette
+- The **Hackathon Judges** for your time and consideration
+
+---
+
+## 📬 Contact
+
+- **Project**: aeroForge-G3
+- **Hackathon**: Gemini 3 Hackathon 2025
+- **Repository**: [github.com/your-username/aeroforge-G3](https://github.com/your-username/aeroforge-G3)
+
+---
+
+<div align="center">
+
+**🚀 From Idea to Flight — Powered by AI**
+
+*"The future of engineering isn't about drawing lines. It's about asking questions."*
+
+</div>

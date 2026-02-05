@@ -59,77 +59,109 @@ def designer_node(state: AeroForgeState) -> AeroForgeState:
 CRITICAL: You must generate a structured DRONE ASSEMBLY with the following components:
 
 1. CENTRAL FUSELAGE (Body/Shell)
-   - Create using Builder: with Builder() as builder:
-   - Use Box() or extruded profiles
-   - Size: ~100-200mm in length, ~60-100mm in width/height
+   - Use Box() for rectangular fuselage
+   - Size: ~100-150mm length, ~80-120mm width, ~40-60mm height
    - Position at origin (0, 0, 0)
+   - Use align parameter: align=(Align.CENTER, Align.CENTER, Align.CENTER)
 
 2. FOUR ARMS (Structure)
-   - Extend outward in X pattern or + pattern
-   - Use Cylinder() for tubular arms (length ~200-300mm, radius ~10-15mm)
-   - Position at 90-degree intervals
-   - Create and combine them into a single assembly
+   - Extend in X pattern (45-degree angles) for better stability
+   - Use Cylinder() for tubular arms
+   - Dimensions: length ~150-250mm, radius ~8-12mm
+   - Align each arm properly and rotate to 45, 135, 225, 315 degrees
+   - Height should be centered vertically
 
 3. FOUR MOTOR MOUNTS (End of arms)
-   - Create at the ends of each arm
-   - Use Cylinder() or Box() for mount plates
-   - Size: ~40-60mm diameter, ~10-15mm thick
-   - Position flush with arm ends
+   - Create cylindrical motor mounts at arm ends
+   - Use Cylinder() with radius ~20-30mm, height ~8-12mm
+   - Position at the end of each arm (extend beyond arm tip)
+   - Use align=(Align.CENTER, Align.CENTER, Align.CENTER)
 
 COMPONENT-BASED GENERATION RULES:
-1. ALWAYS use Builder mode: with Builder() as builder:
-2. Define each component separately FIRST
-3. Combine all components using builder.add(component1 + component2 + ...)
-4. The final assembly MUST be stored in 'part' variable
-5. Use Compound() or union operations to combine parts
-6. Center the fuselage at origin
-7. Ensure proper alignment of all components
+1. ALWAYS use BuildPart context: with BuildPart() as builder:
+2. Define ALL components inside the BuildPart context
+3. Use the + operator to combine components (fuselage + arm1 + arm2 + ...)
+4. The final assembly is automatically stored in builder.part
+5. After BuildPart, extract it: part = builder.part
+6. Center the fuselage at origin using align parameter
+
+CORRECT BUILD123D SYNTAX:
+- For positioning: use Pos(x, y, z) * shape or shape.located(Pos(x, y, z))
+- For rotation: use Rot(axis=Axis.Z, angle=degrees) * shape
+- For alignment: Box(length, width, height, align=(Align.CENTER, Align.CENTER, Align.CENTER))
+- Access final part: part = builder.part
 
 MANDATORY CODE STRUCTURE:
 ```python
 from build123d import *
 
-# Initialize builder
-with Builder() as builder:
-    # COMPONENT 1: FUSELAGE
-    # Define fuselage geometry here
-    fuselage = Box(...)
+# Initialize BuildPart context
+with BuildPart() as builder:
+    # COMPONENT 1: FUSELAGE (centered at origin)
+    fuselage = Box(length=120, width=100, height=40,
+                   align=(Align.CENTER, Align.CENTER, Align.CENTER))
 
-    # COMPONENT 2: ARMS
-    # Create 4 arms extending outward
-    arm_1 = Cylinder(...).located(Pos(...))
-    arm_2 = Cylinder(...).located(Pos(...))
-    arm_3 = Cylinder(...).located(Pos(...))
-    arm_4 = Cylinder(...).located(Pos(...))
-    arms = arm_1 + arm_2 + arm_3 + arm_4
+    # COMPONENT 2: FOUR ARMS in X configuration
+    arm_length = 180
+    arm_radius = 10
+    arm_height = 10
 
-    # COMPONENT 3: MOTOR MOUNTS
-    # Create mounts at arm ends
-    mount_1 = Cylinder(...).located(Pos(...))
-    mount_2 = Cylinder(...).located(Pos(...))
-    mount_3 = Cylinder(...).located(Pos(...))
-    mount_4 = Cylinder(...).located(Pos(...))
-    mounts = mount_1 + mount_2 + mount_3 + mount_4
+    # Arm positions at 45-degree intervals
+    arm_1 = Cylinder(radius=arm_radius, height=arm_height,
+                     align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    arm_1 = Rot(axis=Axis.Z, angle=45) * Pos(arm_length/2, arm_length/2, 0) * arm_1
 
-    # ASSEMBLE ALL COMPONENTS
-    full_assembly = fuselage + arms + mounts
+    arm_2 = Cylinder(radius=arm_radius, height=arm_height,
+                     align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    arm_2 = Rot(axis=Axis.Z, angle=135) * Pos(-arm_length/2, arm_length/2, 0) * arm_2
 
-    # EXPORT FINAL PART
-    builder.add(full_assembly)
-    part = builder.part
+    arm_3 = Cylinder(radius=arm_radius, height=arm_height,
+                     align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    arm_3 = Rot(axis=Axis.Z, angle=225) * Pos(-arm_length/2, -arm_length/2, 0) * arm_3
+
+    arm_4 = Cylinder(radius=arm_radius, height=arm_height,
+                     align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    arm_4 = Rot(axis=Axis.Z, angle=315) * Pos(arm_length/2, -arm_length/2, 0) * arm_4
+
+    # COMPONENT 3: MOTOR MOUNTS at arm ends
+    mount_radius = 25
+    mount_height = 8
+
+    mount_1 = Cylinder(radius=mount_radius, height=mount_height,
+                       align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    mount_1 = Pos(arm_length/2 + 30, arm_length/2 + 30, 0) * mount_1
+
+    mount_2 = Cylinder(radius=mount_radius, height=mount_height,
+                       align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    mount_2 = Pos(-arm_length/2 - 30, arm_length/2 + 30, 0) * mount_2
+
+    mount_3 = Cylinder(radius=mount_radius, height=mount_height,
+                       align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    mount_3 = Pos(-arm_length/2 - 30, -arm_length/2 - 30, 0) * mount_3
+
+    mount_4 = Cylinder(radius=mount_radius, height=mount_height,
+                       align=(Align.CENTER, Align.CENTER, Align.CENTER))
+    mount_4 = Pos(arm_length/2 + 30, -arm_length/2 - 30, 0) * mount_4
+
+    # ASSEMBLE ALL COMPONENTS (union is automatic with + operator)
+    full_assembly = fuselage + arm_1 + arm_2 + arm_3 + arm_4 + mount_1 + mount_2 + mount_3 + mount_4
+
+# Extract final part from builder
+part = builder.part
 ```
 
-DESIGN PARAMETERS FROM MISSION:
-- Parse mission for payload requirements
-- Adjust arm length based on thrust needs
-- Adjust fuselage size based on payload volume
-- Use realistic aerospace dimensions
+DESIGN ADJUSTMENTS:
+- Increase arm length for larger drones or heavier payloads
+- Increase arm radius/thickness for heavy-lift applications
+- Make fuselage larger for bigger payloads
+- Motor mount radius depends on motor size
 
 VALIDATION CHECKS:
-1. Final part must be a valid build123d Part or Compound
-2. All components must be properly joined
-3. No self-intersections or gaps
-4. Reasonable center of mass near fuselage center
+1. Final part variable MUST be defined
+2. All shapes must be created inside BuildPart context
+3. Use correct build123d API (Box, Cylinder, align, Pos, Rot, Axis, Align)
+4. No arbitrary positioning - use Pos() and Rot()
+5. Component dimensions should be realistic for aerospace
 
 Return ONLY valid Python code. No explanations. No markdown code blocks."""
 

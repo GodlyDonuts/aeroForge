@@ -1,176 +1,256 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, Grid, Stats } from '@react-three/drei';
-import { getMissionResults, getFileUrl, getMissionMetrics } from '../api';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, ContactShadows, PerspectiveCamera } from '@react-three/drei';
+import { getMissionResults, getFileUrl } from '../api';
 import * as THREE from 'three';
 
-// Starfield background component
-function Starfield() {
-  return <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />;
-}
-
-// Glowing grid floor
-function GlowingGrid() {
-  return (
-    <Grid
-      args={[40, 40]}
-      cellSize={1}
-      cellThickness={0.5}
-      cellColor="#00f0ff"
-      sectionSize={5}
-      sectionThickness={1}
-      sectionColor="#00f0ff"
-      fadeDistance={50}
-      fadeStrength={1}
-      followCamera={false}
-      infiniteGrid
-    />
-  );
-}
-
-// Drone representation (placeholder - will be replaced with actual STL)
-function DroneModel({ position, rotation, isLoaded }) {
+// 3D Model Components
+function DroneModel({ isLoaded, status }) {
   const groupRef = useRef();
 
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.position.copy(position);
-      groupRef.current.quaternion.copy(rotation);
+  useEffect(() => {
+    if (groupRef.current && !isLoaded) {
+      groupRef.current.rotation.y += 0.005;
     }
-  });
+  }, [isLoaded]);
 
-  return (
-    <group ref={groupRef}>
-      {/* Central Fuselage */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[0.15, 0.08, 0.15]} />
-        <meshStandardMaterial
-          color="#00f0ff"
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#00f0ff"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-
-      {/* Four Arms */}
-      {[
-        [0.2, 0, 0], [-0.2, 0, 0],
-        [0, 0, 0.2], [0, 0, -0.2]
-      ].map((armPos, i) => (
-        <mesh key={`arm-${i}`} position={armPos}>
-          <cylinderGeometry args={[0.01, 0.01, 0.2]} />
-          <meshStandardMaterial
-            color="#333333"
-            metalness={0.8}
-            roughness={0.2}
-          />
-        </mesh>
-      ))}
-
-      {/* Motor Mounts */}
-      {[
-        [0.3, 0, 0], [-0.3, 0, 0],
-        [0, 0, 0.3], [0, 0, -0.3]
-      ].map((mountPos, i) => (
-        <mesh key={`mount-${i}`} position={mountPos}>
-          <cylinderGeometry args={[0.04, 0.04, 0.02]} />
-          <meshStandardMaterial
-            color="#ff4d4d"
-            metalness={0.8}
-            roughness={0.2}
-            emissive="#ff4d4d"
-            emissiveIntensity={0.5}
-          />
-        </mesh>
-      ))}
-
-      {/* Rotors */}
-      {[
-        [0.3, 0.01, 0], [-0.3, 0.01, 0],
-        [0, 0.01, 0.3], [0, 0.01, -0.3]
-      ].map((rotorPos, i) => (
-        <group key={`rotor-${i}`} position={rotorPos}>
-          <mesh rotation={[0, Date.now() * 0.01, 0]}>
-            <ringGeometry args={[0.03, 0.08, 32]} />
+  if (isLoaded) {
+    return (
+      <>
+        {/* Central Fuselage */}
+        <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+          <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
+            <sphereGeometry args={[0.3, 32, 32]} />
             <meshStandardMaterial
-              color="#ffffff"
+              color="#0a0a0f"
               metalness={0.9}
               roughness={0.1}
-              emissive="#ffffff"
-              emissiveIntensity={0.5}
-              transparent
-              opacity={0.3}
-              side={THREE.DoubleSide}
+              emissive="#00f0ff"
+              emissiveIntensity={0.2}
             />
           </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
 
-// Camera controller
-function CameraController() {
-  const { camera } = useThree();
-  const targetPosition = useRef(new THREE.Vector3(3, 2, 3));
-  const currentPosition = useRef(new THREE.Vector3(3, 2, 3));
+          {/* Arms */}
+          {[
+            [0, Math.PI / 2],
+            [Math.PI / 2, Math.PI],
+            [Math.PI, Math.PI * 1.5],
+            [Math.PI * 1.5, Math.PI * 2],
+          ].map(([startAngle, endAngle], i) => (
+            <group key={i} rotation={[0, startAngle, 0]}>
+              {/* Arm */}
+              <mesh position={[0.4, 0.3, 0]} castShadow>
+                <boxGeometry args={[0.6, 0.05, 0.05]} />
+                <meshStandardMaterial
+                  color="#1a1a25"
+                  metalness={0.8}
+                  roughness={0.2}
+                />
+              </mesh>
 
-  useFrame(() => {
-    currentPosition.current.lerp(targetPosition.current, 0.02);
-    camera.position.copy(currentPosition.current);
-    camera.lookAt(0, 0, 0);
-  });
+              {/* Motor */}
+              <mesh position={[0.7, 0.35, 0]} castShadow>
+                <cylinderGeometry args={[0.08, 0.08, 0.1, 32]} />
+                <meshStandardMaterial
+                  color="#0a0a0f"
+                  metalness={0.9}
+                  roughness={0.1}
+                />
+              </mesh>
 
-  return null;
-}
+              {/* Propeller */}
+              <mesh position={[0.7, 0.45, 0]} rotation={[0, Date.now() * 0.01, 0]}>
+                <cylinderGeometry args={[0.25, 0.25, 0.005, 16]} />
+                <meshStandardMaterial
+                  color="#00f0ff"
+                  metalness={0.7}
+                  roughness={0.3}
+                  transparent
+                  opacity={0.8}
+                />
+              </mesh>
+            </group>
+          ))}
 
-// Scene component
-function Scene({ dronePosition, droneRotation, showDrone }) {
+          {/* Payload */}
+          <mesh position={[0, 0.1, 0]} castShadow>
+            <boxGeometry args={[0.2, 0.1, 0.2]} />
+            <meshStandardMaterial
+              color="#7b2cbf"
+              metalness={0.6}
+              roughness={0.4}
+              emissive="#7b2cbf"
+              emissiveIntensity={0.1}
+            />
+          </mesh>
+        </Float>
+
+        {/* Glow Effects */}
+        <Sparkles
+          count={100}
+          scale={3}
+          size={3}
+          speed={0.4}
+          opacity={0.5}
+          color="#00f0ff"
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[10, 10, 5]} intensity={1} color="#00f0ff" />
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#ff4d4d" />
-      <pointLight position={[0, 2, 0]} intensity={0.5} color="#ffffff" />
+      {/* Placeholder Model */}
+      <Float speed={2} rotationIntensity={0.3} floatIntensity={0.5}>
+        <mesh position={[0, 0.5, 0]} rotation={[0, Date.now() * 0.0005, 0]}>
+          <octahedronGeometry args={[0.4, 0]} />
+          <meshStandardMaterial
+            color="#7b2cbf"
+            metalness={0.8}
+            roughness={0.2}
+            wireframe
+          />
+        </mesh>
 
-      <Starfield />
-      <GlowingGrid />
+        <mesh position={[0, 0.5, 0]}>
+          <octahedronGeometry args={[0.35, 0]} />
+          <meshStandardMaterial
+            color="#00f0ff"
+            metalness={0.9}
+            roughness={0.1}
+            emissive="#00f0ff"
+            emissiveIntensity={0.3}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      </Float>
 
-      {showDrone && (
-        <DroneModel
-          position={dronePosition}
-          rotation={droneRotation}
-          isLoaded={showDrone}
-        />
-      )}
-
-      <OrbitControls
-        enableDamping
-        dampingFactor={0.05}
-        minDistance={1}
-        maxDistance={10}
-        maxPolarAngle={Math.PI / 2}
+      <Sparkles
+        count={50}
+        scale={3}
+        size={4}
+        speed={0.3}
+        opacity={0.3}
+        color="#7b2cbf"
       />
-
-      <CameraController />
     </>
   );
 }
 
-function Visualizer3D({ missionId, missionStatus, telemetryData }) {
+function Lighting() {
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight
+        position={[10, 10, 5]}
+        intensity={1.2}
+        castShadow
+        color="#ffffff"
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-near={0.5}
+        shadow-camera-far={50}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
+      />
+      <pointLight position={[-5, 5, -5]} intensity={0.5} color="#00f0ff" />
+      <pointLight position={[5, 5, 5]} intensity={0.5} color="#7b2cbf" />
+      <spotLight position={[0, 10, 0]} angle={0.3} penumbra={0.5} intensity={0.3} color="#00f0ff" />
+    </>
+  );
+}
+
+function Ground() {
+  return (
+    <>
+      <Grid
+        args={[20, 20]}
+        cellSize={1}
+        cellThickness={0.02}
+        cellColor="#00f0ff"
+        sectionSize={5}
+        sectionThickness={0.05}
+        sectionColor="#7b2cbf"
+        fadeDistance={30}
+        fadeStrength={1}
+        followCamera={false}
+        infiniteGrid
+      />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[50, 50]} />
+        <meshStandardMaterial
+          color="#0a0a0f"
+          metalness={0.9}
+          roughness={0.1}
+          transparent
+          opacity={0.8}
+        />
+      </mesh>
+    </>
+  );
+}
+
+function HUD({ missionId, status, isLoaded }) {
+  if (!missionId) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {/* Top HUD */}
+      <div className="absolute top-4 left-4 right-4 flex justify-between">
+        <div className="glass-panel px-4 py-2 border-neon-blue/20">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider">View Mode</div>
+          <div className="text-xs font-bold text-neon-blue tracking-wider">ORBITAL</div>
+        </div>
+        <div className="glass-panel px-4 py-2 border-white/5">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider">Render</div>
+          <div className="text-xs font-bold text-purple tracking-wider">REALTIME</div>
+        </div>
+      </div>
+
+      {/* Bottom HUD */}
+      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+        <div className="space-y-2">
+          <div className="glass-panel px-4 py-2 border-success-green/20">
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Status</div>
+            <div className={`text-xs font-bold uppercase tracking-wider ${status === 'complete' ? 'text-success-green' :
+                status === 'failed' ? 'text-alert-red' :
+                  'text-warning-yellow'
+              }`}>
+              {status === 'complete' ? '✓ READY' :
+                status === 'failed' ? '✗ ERROR' :
+                  '● GENERATING'}
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-panel px-4 py-2 border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Controls</div>
+            <div className="flex gap-2 text-[10px] text-gray-400 font-mono">
+              <span className="px-2 py-1 bg-white/5 rounded">LMB</span>
+              <span className="px-2 py-1 bg-white/5 rounded">RMB</span>
+              <span className="px-2 py-1 bg-white/5 rounded">SCROLL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Corner decorations */}
+      <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-neon-blue/30" />
+      <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-neon-blue/30" />
+      <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-neon-blue/30" />
+      <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-neon-blue/30" />
+    </div>
+  );
+}
+
+function Visualizer3D({ missionId, missionStatus }) {
   const [stlFiles, setStlFiles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentFrame, setCurrentFrame] = useState(0);
-  const [showDrone, setShowDrone] = useState(false);
+  const [error, setError] = useState(null);
 
-  const dronePosition = useRef(new THREE.Vector3(0, 0, 0));
-  const droneRotation = useRef(new THREE.Quaternion());
-  const animationRef = useRef(null);
-  const lastFrameTime = useRef(0);
-
-  // Load results when mission completes
   useEffect(() => {
     if (!missionId || missionStatus?.status !== 'complete') {
       return;
@@ -178,11 +258,14 @@ function Visualizer3D({ missionId, missionStatus, telemetryData }) {
 
     const fetchResults = async () => {
       setLoading(true);
+      setError(null);
+
       try {
         const results = await getMissionResults(missionId);
         setStlFiles(results.files || []);
       } catch (err) {
         console.error('Failed to fetch results:', err);
+        setError('Failed to load 3D files');
       } finally {
         setLoading(false);
       }
@@ -191,204 +274,125 @@ function Visualizer3D({ missionId, missionStatus, telemetryData }) {
     fetchResults();
   }, [missionId, missionStatus]);
 
-  // Show drone when simulation is complete
-  useEffect(() => {
-    if (telemetryData && telemetryData.position?.length > 0) {
-      setShowDrone(true);
-    }
-  }, [telemetryData]);
-
-  // Animation loop for replay
-  const animate = (timestamp) => {
-    if (!isPlaying || !telemetryData) return;
-
-    const deltaTime = timestamp - lastFrameTime.current;
-    const frameTime = 33; // ~30 FPS
-
-    if (deltaTime >= frameTime) {
-      lastFrameTime.current = timestamp;
-      const nextFrame = Math.min(currentFrame + 1, telemetryData.position.length - 1);
-      setCurrentFrame(nextFrame);
-
-      // Update drone position and rotation
-      if (telemetryData.position[nextFrame]) {
-        const pos = telemetryData.position[nextFrame];
-        dronePosition.current.set(pos[0], pos[1], pos[2]);
-      }
-
-      if (telemetryData.rotation_quaternion?.[nextFrame]) {
-        const quat = telemetryData.rotation_quaternion[nextFrame];
-        droneRotation.current.set(quat[0], quat[1], quat[2], quat[3]);
-      }
-    }
-
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  // Handle play/pause
-  useEffect(() => {
-    if (isPlaying && telemetryData) {
-      lastFrameTime.current = performance.now();
-      animationRef.current = requestAnimationFrame(animate);
-    } else {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isPlaying, telemetryData]);
-
-  // Update drone position when frame changes manually
-  useEffect(() => {
-    if (!telemetryData || !telemetryData.position?.[currentFrame]) return;
-
-    const pos = telemetryData.position[currentFrame];
-    dronePosition.current.set(pos[0], pos[1], pos[2]);
-
-    if (telemetryData.rotation_quaternion?.[currentFrame]) {
-      const quat = telemetryData.rotation_quaternion[currentFrame];
-      droneRotation.current.set(quat[0], quat[1], quat[2], quat[3]);
-    }
-  }, [currentFrame, telemetryData]);
-
-  const totalFrames = telemetryData?.position?.length || 0;
-  const progress = totalFrames > 0 ? (currentFrame / totalFrames) * 100 : 0;
+  const isLoaded = stlFiles.length > 0 && missionStatus?.status === 'complete';
 
   return (
-    <div className="glass-panel h-full flex flex-col">
+    <div className="glass-panel overflow-hidden relative h-full min-h-[600px]">
       {/* Header */}
-      <div className="p-6 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">🎨</div>
+      <div className="absolute top-0 left-0 right-0 z-10 glass-panel border-0 border-b border-white/5 rounded-none">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-blue to-purple flex items-center justify-center text-xl box-glow">
+              🎨
+            </div>
             <div>
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider">Flight Visualization</h2>
-              <p className="text-xs text-gray-500">Real-time 6-DOF trajectory replay</p>
+              <h2 className="text-base font-bold text-white uppercase tracking-wider">3D Visualizer</h2>
+              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Real-time Model Rendering</p>
             </div>
           </div>
 
-          {stlFiles.length > 0 && (
-            <div className="glass-panel px-4 py-2 border border-neon-blue/30">
-              <span className="text-xs text-neon-blue font-mono">
-                {stlFiles.length} FILE{stlFiles.length !== 1 ? 'S' : ''} LOADED
-              </span>
+          <div className="flex items-center gap-4">
+            {isLoaded && (
+              <div className="glass-panel px-4 py-2 border-success-green/20 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-success-green animate-pulse" />
+                <span className="text-xs font-bold text-success-green tracking-wider">
+                  {stlFiles.length} FILE{stlFiles.length !== 1 ? 'S' : ''} LOADED
+                </span>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button className="glass-button px-3 py-2 text-xs">
+                <span className="text-sm">◐</span>
+              </button>
+              <button className="glass-button px-3 py-2 text-xs">
+                <span className="text-sm">⟲</span>
+              </button>
+              <button className="glass-button px-3 py-2 text-xs">
+                <span className="text-sm">⬡</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
-
-        {/* Playback Controls */}
-        {showDrone && telemetryData && (
-          <div className="mt-4 space-y-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all duration-300
-                  bg-spacex-gray border border-white/10 text-white hover:border-neon-blue hover:text-neon-blue"
-              >
-                {isPlaying ? '⏸ Pause' : '▶ Play'}
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsPlaying(false);
-                  setCurrentFrame(0);
-                  dronePosition.current.set(0, 0, 0);
-                  droneRotation.current.set(0, 0, 0, 1);
-                }}
-                className="px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all duration-300
-                  bg-spacex-gray border border-white/10 text-white hover:border-neon-blue hover:text-neon-blue"
-              >
-                ↺ Reset
-              </button>
-
-              <div className="flex-1">
-                <div className="text-xs text-gray-500 mb-2 flex justify-between">
-                  <span>Frame: {currentFrame} / {totalFrames}</span>
-                  <span>{progress.toFixed(1)}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max={totalFrames - 1}
-                  value={currentFrame}
-                  onChange={(e) => setCurrentFrame(parseInt(e.target.value))}
-                  className="w-full h-2 bg-spacex-gray rounded-lg appearance-none cursor-pointer accent-neon-blue"
-                />
-              </div>
-            </div>
-
-            {/* Live Telemetry */}
-            <div className="grid grid-cols-4 gap-4">
-              <div className="metric-card">
-                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Position X</div>
-                <div className="text-lg font-bold text-neon-blue">
-                  {telemetryData.position?.[currentFrame]?.[0]?.toFixed(3) || '0.000'} m
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Position Y</div>
-                <div className="text-lg font-bold text-neon-blue">
-                  {telemetryData.position?.[currentFrame]?.[1]?.toFixed(3) || '0.000'} m
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Position Z</div>
-                <div className="text-lg font-bold text-neon-blue">
-                  {telemetryData.position?.[currentFrame]?.[2]?.toFixed(3) || '0.000'} m
-                </div>
-              </div>
-              <div className="metric-card">
-                <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Time</div>
-                <div className="text-lg font-bold text-neon-blue">
-                  {telemetryData.time?.[currentFrame]?.toFixed(2) || '0.00'} s
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* 3D Viewer */}
-      <div className="flex-1 relative bg-spacex-black">
-        <Canvas camera={{ position: [3, 2, 3], fov: 60 }}>
-          <color attach="background" args={['#000000']} />
-          <Scene
-            dronePosition={dronePosition.current}
-            droneRotation={droneRotation.current}
-            showDrone={showDrone}
+      {/* 3D Canvas */}
+      <div className="absolute inset-0 pt-[72px]">
+        <Canvas shadows dpr={[1, 2]}>
+          <PerspectiveCamera makeDefault position={[5, 4, 5]} fov={50} />
+          <color attach="background" args={['#0a0a0f']} />
+
+          <Lighting />
+          <Environment preset="city" />
+          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+          <Ground />
+          <DroneModel isLoaded={isLoaded} status={missionStatus?.status} />
+
+          <OrbitControls
+            enableDamping
+            dampingFactor={0.05}
+            minDistance={2}
+            maxDistance={15}
+            maxPolarAngle={Math.PI / 2}
+            minPolarAngle={0.1}
+            enablePan={true}
+            enableZoom={true}
+          />
+
+          <ContactShadows
+            position={[0, -0.01, 0]}
+            width={20}
+            height={20}
+            far={10}
+            opacity={0.3}
+            color="#00f0ff"
+            blur={2}
           />
         </Canvas>
 
-        {!missionId && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl mb-4">🚀</div>
-              <div className="text-xl text-gray-400 mb-2">Mission Control</div>
-              <div className="text-sm text-gray-600">Submit a mission to begin</div>
-            </div>
-          </div>
-        )}
+        {/* HUD Overlay */}
+        <HUD missionId={missionId} status={missionStatus?.status} isLoaded={isLoaded} />
 
+        {/* Loading Overlay */}
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+          <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-neon-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <div className="text-neon-blue font-bold">LOADING TRAJECTORY DATA...</div>
+              <div className="relative w-16 h-16 mx-auto mb-4">
+                <div className="absolute inset-0 border-4 border-neon-blue/20 rounded-full" />
+                <div className="absolute inset-0 border-4 border-transparent border-t-neon-blue rounded-full animate-spin" />
+                <div className="absolute inset-2 border-4 border-transparent border-t-purple rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+              </div>
+              <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">
+                LOADING MODEL...
+              </div>
             </div>
           </div>
         )}
 
-        {missionStatus?.status === 'complete' && !showDrone && (
+        {/* Empty State */}
+        {!missionId && !loading && !error && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-4xl mb-4">✓</div>
-              <div className="text-xl text-neon-blue font-bold">Mission Complete</div>
-              <div className="text-sm text-gray-500">No trajectory data available</div>
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-spacex-gray to-spacex-dark border border-white/5 flex items-center justify-center">
+                <div className="text-4xl animate-float">🎨</div>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 tracking-wider">NO ACTIVE MISSION</h3>
+              <p className="text-sm text-gray-500 max-w-xs">
+                Submit a mission to view the generated 3D model in real-time
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-alert-red/5">
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-alert-red/10 border border-alert-red/30 flex items-center justify-center">
+                <div className="text-4xl">⚠️</div>
+              </div>
+              <h3 className="text-lg font-bold text-alert-red mb-2 tracking-wider">LOADING ERROR</h3>
+              <p className="text-sm text-gray-500 max-w-xs">{error}</p>
             </div>
           </div>
         )}
