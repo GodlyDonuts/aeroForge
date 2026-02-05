@@ -18,6 +18,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from core.state import AeroForgeState
 from core.geometry import SceneBuilder
 from core.physics import SimRunner
+import build123d as bd
 
 
 def simulator_node(state: AeroForgeState) -> AeroForgeState:
@@ -200,23 +201,20 @@ def create_mock_part():
 
             # Arm 1 (front-right)
             arm_1 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
-            arm_1 = bd.Rotate(arm_1, axis=bd.Axis.Z, angle=45)
-            arm_1 = bd.Pos(arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_1
+            # Rotate 45 degrees around Z axis using Rot(0, 0, angle)
+            arm_1 = bd.Rot(0, 0, 45) * bd.Pos(arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_1
 
             # Arm 2 (front-left)
             arm_2 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
-            arm_2 = bd.Rotate(arm_2, axis=bd.Axis.Z, angle=135)
-            arm_2 = bd.Pos(-arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_2
+            arm_2 = bd.Rot(0, 0, 135) * bd.Pos(-arm_length/2 * 0.707, arm_length/2 * 0.707, 0) * arm_2
 
             # Arm 3 (back-left)
             arm_3 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
-            arm_3 = bd.Rotate(arm_3, axis=bd.Axis.Z, angle=225)
-            arm_3 = bd.Pos(-arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_3
+            arm_3 = bd.Rot(0, 0, 225) * bd.Pos(-arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_3
 
             # Arm 4 (back-right)
             arm_4 = bd.Cylinder(radius=arm_radius, height=arm_length, align=(bd.Align.CENTER, bd.Align.CENTER, bd.Align.CENTER))
-            arm_4 = bd.Rotate(arm_4, axis=bd.Axis.Z, angle=315)
-            arm_4 = bd.Pos(arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_4
+            arm_4 = bd.Rot(0, 0, 315) * bd.Pos(arm_length/2 * 0.707, -arm_length/2 * 0.707, 0) * arm_4
 
             # Motor mounts at arm ends
             mount_radius = 25
@@ -266,27 +264,22 @@ def generate_simple_urdf(stl_files: list) -> str:
             "density": "2700"
         })
 
-    # Create joints (simple fixed joints)
+    # Create joints (simple fixed joints between parts)
     joints = []
-    for i in range(len(links)):
-        if i == 0:
-            # First link connects to world (fixed)
-            joints.append({
-                "name": f"joint_{i}",
-                "parent": "world",
-                "child": links[i]["name"],
-                "type": "fixed",
-                "origin": {"xyz": "0 0 0", "rpy": "0 0 0"}
-            })
-        else:
-            # Other links connect to previous link
-            joints.append({
-                "name": f"joint_{i}",
-                "parent": links[i-1]["name"],
-                "child": links[i]["name"],
-                "type": "fixed",
-                "origin": {"xyz": "0 0 0.05", "rpy": "0 0 0"}
-            })
+    # Skip the first link (it's the base). Only connect subsequent links to the previous one (linear chain for now)
+    # Ideally for a drone it should be star topology (base -> all others), but since we typically get 1 fused STL
+    # this loop might not even run for >1 items often. 
+    # If we do have multiple parts, chain them or attach all to base.
+    
+    # For a drone, let's attach everything to link_0 (base)
+    for i in range(1, len(links)):
+        joints.append({
+            "name": f"joint_{i}",
+            "parent": links[0]["name"], # Attach to base link
+            "child": links[i]["name"],
+            "type": "fixed",
+            "origin": {"xyz": "0 0 0", "rpy": "0 0 0"}
+        })
 
     return scene_builder.generate_urdf(links, joints, "aeroforge_robot")
 

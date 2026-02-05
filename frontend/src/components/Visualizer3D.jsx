@@ -4,9 +4,15 @@ import { OrbitControls, Grid, Stars, Float, Sparkles, Environment, ContactShadow
 import { getMissionResults, getFileUrl } from '../api';
 import * as THREE from 'three';
 
+import { useLoader } from '@react-three/fiber';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+
 // 3D Model Components
-function DroneModel({ isLoaded, status }) {
+function DroneModel({ isLoaded, stlUrl, status }) {
   const groupRef = useRef();
+
+  // Load STL if URL is available
+  const geometry = useLoader(STLLoader, isLoaded && stlUrl ? stlUrl : null);
 
   useEffect(() => {
     if (groupRef.current && !isLoaded) {
@@ -14,75 +20,28 @@ function DroneModel({ isLoaded, status }) {
     }
   }, [isLoaded]);
 
-  return (
-    <group>
-      {/* Central Fuselage */}
-      <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-        <sphereGeometry args={[0.3, 32, 32]} />
-        <meshStandardMaterial
-          color="#0a0a0f"
-          metalness={0.9}
-          roughness={0.1}
-          emissive="#00f0ff"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
+  if (isLoaded && geometry) {
+    return (
+      <group>
+        <mesh
+          geometry={geometry}
+          position={[0, 0, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          castShadow
+          receiveShadow
+        >
+          <meshStandardMaterial
+            color="#1a1a25"
+            metalness={0.8}
+            roughness={0.2}
+          />
+        </mesh>
 
-      {/* Arms */}
-      {[
-        [0, Math.PI / 2],
-        [Math.PI / 2, Math.PI],
-        [Math.PI, Math.PI * 1.5],
-        [Math.PI * 1.5, Math.PI * 2],
-      ].map(([startAngle, endAngle], i) => (
-        <group key={i} rotation={[0, startAngle, 0]}>
-          {/* Arm */}
-          <mesh position={[0.4, 0.3, 0]} castShadow>
-            <boxGeometry args={[0.6, 0.05, 0.05]} />
-            <meshStandardMaterial
-              color="#1a1a25"
-              metalness={0.8}
-              roughness={0.2}
-            />
-          </mesh>
-
-          {/* Motor */}
-          <mesh position={[0.7, 0.35, 0]} castShadow>
-            <cylinderGeometry args={[0.08, 0.08, 0.1, 32]} />
-            <meshStandardMaterial
-              color="#0a0a0f"
-              metalness={0.9}
-              roughness={0.1}
-            />
-          </mesh>
-
-          {/* Propeller */}
-          <mesh position={[0.7, 0.45, 0]} rotation={[0, 0, 0]}>
-            <cylinderGeometry args={[0.25, 0.25, 0.005, 16]} />
-            <meshStandardMaterial
-              color="#00f0ff"
-              metalness={0.7}
-              roughness={0.3}
-              transparent
-              opacity={0.8}
-            />
-          </mesh>
-        </group>
-      ))}
-
-      {/* Payload */}
-      <mesh position={[0, 0.1, 0]} castShadow>
-        <boxGeometry args={[0.2, 0.1, 0.2]} />
-        <meshStandardMaterial
-          color="#7b2cbf"
-          metalness={0.6}
-          roughness={0.4}
-          emissive="#7b2cbf"
-          emissiveIntensity={0.1}
-        />
-      </mesh>
-    </group>
-  );
+        {/* Add some ambient glow for the "SpaceX" feel */}
+        <pointLight position={[0, 2, 0]} intensity={2} color="#00f0ff" distance={3} />
+      </group>
+    );
+  }
 
   return (
     <>
@@ -301,7 +260,11 @@ function Visualizer3D({ missionId, missionStatus }) {
           <Environment preset="city" />
           <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
           <Ground />
-          <DroneModel isLoaded={isLoaded} status={missionStatus?.status} />
+          <DroneModel
+            isLoaded={isLoaded}
+            status={missionStatus?.status}
+            stlUrl={isLoaded && stlFiles.length > 0 ? getFileUrl(stlFiles[0]) : null}
+          />
 
           <OrbitControls
             enableDamping
