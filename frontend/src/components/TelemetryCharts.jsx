@@ -61,151 +61,160 @@ function TelemetryCharts({ missionId, missionStatus }) {
   const chartData = prepareChartData();
 
   return (
-    <div className="panel-card">
-      <div className="panel-header">
-        <span className="panel-title">
-          <span className="panel-title-icon">📊</span>
-          Telemetry Data
-        </span>
-        {telemetry && (
-          <span style={{ fontSize: '11px', color: 'var(--accent-success)' }}>
-            {telemetry.time?.length || 0} DATA POINTS
-          </span>
-        )}
+    <div className="glass-panel flex flex-col h-full bg-black">
+      <div className="p-4 border-b border-spacex-border bg-spacex-bg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-sm font-bold text-white">
+              📊
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Telemetry Data</h2>
+            </div>
+          </div>
+          {telemetry && (
+            <div className="px-3 py-1 border border-spacex-border rounded-sm bg-spacex-bg">
+              <span className="text-[10px] font-bold text-success uppercase tracking-wider">
+                {telemetry.time?.length || 0} DATA POINTS
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-      <div className="panel-body">
+
+      <div className="flex-1 p-4 overflow-y-auto">
         {loading && (
-          <div className="loading">
-            <div className="spinner"></div>
+          <div className="flex items-center justify-center h-full">
+            <div className="text-spacex-text-dim text-xs font-mono uppercase tracking-wider animate-pulse">
+              LOADING TELEMETRY...
+            </div>
           </div>
         )}
 
         {!telemetry && !loading && (
-          <div className="loading">
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-              <div>Complete a mission to view telemetry</div>
+          <div className="flex items-center justify-center h-full text-center">
+            <div>
+              <div className="text-2xl text-spacex-text-dim mb-2">📈</div>
+              <div className="text-xs text-spacex-text-dim uppercase tracking-wider">Awaiting Mission Data</div>
             </div>
           </div>
         )}
 
         {telemetry && chartData.length > 0 && (
-          <div style={{ height: '100%', overflow: 'auto' }}>
+          <div className="space-y-6">
             {/* Position Chart */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase' }}>
+            <div className="h-[200px] w-full">
+              <h4 className="text-[10px] text-spacex-text-dim font-bold uppercase tracking-wider mb-2">
                 Position Over Time
               </h4>
-              <div style={{ height: '200px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDash="3 3" stroke="#2a2a3a" />
-                    <XAxis
-                      dataKey="time"
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5, fill: '#606070' }}
-                    />
-                    <YAxis
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Position (m)', angle: -90, position: 'insideLeft', fill: '#606070' }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1a1a25',
-                        border: '1px solid #2a2a3a',
-                        borderRadius: '4px',
-                        color: '#e0e0e0'
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="x" stroke="#00d4ff" dot={false} name="X" strokeWidth={2} />
-                    <Line type="monotone" dataKey="y" stroke="#7b2cbf" dot={false} name="Y" strokeWidth={2} />
-                    <Line type="monotone" dataKey="z" stroke="#00ff88" dot={false} name="Z" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDash="3 3" stroke="#333" />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                    tickLine={{ stroke: '#555' }}
+                  />
+                  <YAxis
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                    tickLine={{ stroke: '#555' }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#111',
+                      border: '1px solid #333',
+                      borderRadius: '0px',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontFamily: 'monospace'
+                    }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#888' }}
+                  />
+                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '10px', fontSize: '10px' }} />
+                  <Line type="monotone" dataKey="x" stroke="#fff" dot={false} name="X" strokeWidth={1.5} activeDot={{ r: 4, fill: '#fff' }} />
+                  <Line type="monotone" dataKey="y" stroke="#888" dot={false} name="Y" strokeWidth={1.5} />
+                  <Line type="monotone" dataKey="z" stroke="#444" dot={false} name="Z" strokeWidth={1.5} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Velocity Chart */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase' }}>
+            <div className="h-[200px] w-full">
+              <h4 className="text-[10px] text-spacex-text-dim font-bold uppercase tracking-wider mb-2">
                 Velocity Over Time
               </h4>
-              <div style={{ height: '200px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDash="3 3" stroke="#2a2a3a" />
-                    <XAxis
-                      dataKey="time"
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5, fill: '#606070' }}
-                    />
-                    <YAxis
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Velocity (m/s)', angle: -90, position: 'insideLeft', fill: '#606070' }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1a1a25',
-                        border: '1px solid #2a2a3a',
-                        borderRadius: '4px',
-                        color: '#e0e0e0'
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="vx" stroke="#ff4444" dot={false} name="Vx" strokeWidth={2} />
-                    <Line type="monotone" dataKey="vy" stroke="#ffaa00" dot={false} name="Vy" strokeWidth={2} />
-                    <Line type="monotone" dataKey="vz" stroke="#00ff88" dot={false} name="Vz" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDash="3 3" stroke="#333" />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                  />
+                  <YAxis
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#111',
+                      border: '1px solid #333',
+                      borderRadius: '0px',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '10px', fontSize: '10px' }} />
+                  <Line type="monotone" dataKey="vx" stroke="#ff3b30" dot={false} name="Vx" strokeWidth={1.5} />
+                  <Line type="monotone" dataKey="vy" stroke="#ff9500" dot={false} name="Vy" strokeWidth={1.5} />
+                  <Line type="monotone" dataKey="vz" stroke="#34c759" dot={false} name="Vz" strokeWidth={1.5} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Energy Chart */}
-            <div>
-              <h4 style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase' }}>
+            <div className="h-[200px] w-full">
+              <h4 className="text-[10px] text-spacex-text-dim font-bold uppercase tracking-wider mb-2">
                 Total Energy Over Time
               </h4>
-              <div style={{ height: '200px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDash="3 3" stroke="#2a2a3a" />
-                    <XAxis
-                      dataKey="time"
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -5, fill: '#606070' }}
-                    />
-                    <YAxis
-                      stroke="#606070"
-                      tick={{ fill: '#606070' }}
-                      label={{ value: 'Energy (J)', angle: -90, position: 'insideLeft', fill: '#606070' }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#1a1a25',
-                        border: '1px solid #2a2a3a',
-                        borderRadius: '4px',
-                        color: '#e0e0e0'
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="energy" stroke="#00d4ff" dot={false} name="Energy" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDash="3 3" stroke="#333" />
+                  <XAxis
+                    dataKey="time"
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                  />
+                  <YAxis
+                    stroke="#555"
+                    tick={{ fill: '#888', fontSize: 10 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#111',
+                      border: '1px solid #333',
+                      borderRadius: '0px',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontFamily: 'monospace'
+                    }}
+                  />
+                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '10px', fontSize: '10px' }} />
+                  <Line type="monotone" dataKey="energy" stroke="#30b0c7" dot={false} name="Energy" strokeWidth={1.5} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
 
         {telemetry && chartData.length === 0 && (
-          <div className="loading">
-            <div style={{ textAlign: 'center' }}>
-              <div>No telemetry data available</div>
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-spacex-text-dim text-xs uppercase tracking-wider">
+              No telemetry data available
             </div>
           </div>
         )}

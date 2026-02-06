@@ -32,51 +32,42 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
       name: 'Mars Explorer',
       prompt: 'Design a quadcopter drone for Mars atmosphere with 2kg payload capacity. Must be stable in high winds and operate for at least 30 minutes. Use carbon fiber for lightweight construction.',
       icon: 'M',
-      gradient: 'from-red-500/20 to-orange-500/20',
-      border: 'border-red-500/30'
     },
     {
       name: 'High-Speed Racing',
       prompt: 'Design a high-speed racing drone capable of reaching 150 km/h. Focus on aerodynamic efficiency and minimal drag. Use slim arms and streamlined fuselage.',
       icon: 'R',
-      gradient: 'from-yellow-500/20 to-amber-500/20',
-      border: 'border-yellow-500/30'
     },
     {
       name: 'Heavy Lift Cargo',
       prompt: 'Design an octocopter heavy-lift drone capable of carrying 20kg payload. Prioritize stability and structural integrity. Use thick reinforced arms.',
       icon: 'H',
-      gradient: 'from-blue-500/20 to-cyan-500/20',
-      border: 'border-blue-500/30'
     },
     {
       name: 'Stealth Surveillance',
       prompt: 'Design a stealth surveillance drone with long endurance (4+ hours) and low acoustic signature. Focus on aerodynamic efficiency and quiet operation.',
       icon: 'S',
-      gradient: 'from-purple-500/20 to-pink-500/20',
-      border: 'border-purple-500/30'
     }
   ];
 
   return (
     <div className="glass-panel">
       {/* Header */}
-      <div className="p-6 border-b border-white/5">
+      <div className="p-4 border-b border-spacex-border">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-neon-blue/20 to-purple/20 border border-neon-blue/30 flex items-center justify-center text-2xl font-bold text-neon-blue box-glow">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-sm font-bold text-white font-mono">
               M
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white uppercase tracking-wider">Mission Parameters</h2>
-              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Configure Design Requirements</p>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Mission Parameters</h2>
             </div>
           </div>
 
           {currentMissionId && (
-            <div className="glass-panel px-4 py-2 border-success-green/20 flex items-center gap-2 animate-slide-down">
-              <div className="w-2 h-2 rounded-full bg-success-green animate-pulse" />
-              <span className="text-[10px] font-bold text-success-green tracking-wider uppercase">
+            <div className="px-3 py-1 border border-success/30 bg-success/5 rounded-sm flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-success" />
+              <span className="text-[10px] font-bold text-success tracking-wider uppercase">
                 ACTIVE
               </span>
             </div>
@@ -85,38 +76,36 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
       </div>
 
       {/* Body */}
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Mission Description */}
           <div className="space-y-2">
-            <label className="block text-xs text-neon-blue uppercase tracking-[0.15em] font-bold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse" />
+            <label className="block text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">
               Mission Description
             </label>
             <textarea
-              className="glass-input w-full min-h-[140px] resize-none font-mono text-sm leading-relaxed"
+              className="glass-input w-full min-h-[100px] resize-none font-mono text-xs leading-relaxed"
               placeholder="Describe the aerospace design requirements..."
               value={missionPrompt}
               onChange={(e) => setMissionPrompt(e.target.value)}
               disabled={isSubmitting || isRunning}
             />
-            <div className="flex justify-between text-[10px] text-gray-600">
-              <span>{missionPrompt.length} / 2000 characters</span>
-              <span className={missionPrompt.length > 2000 ? 'text-alert-red' : ''}>
+            <div className="flex justify-between text-[10px] text-spacex-text-dim font-mono">
+              <span>{missionPrompt.length} chars</span>
+              <span className={missionPrompt.length > 2000 ? 'text-error' : ''}>
                 {missionPrompt.length > 2000 && '! Limit exceeded'}
               </span>
             </div>
           </div>
 
-          {/* Iterations Slider */}
+          {/* Iterations Slider - simplified */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <label className="block text-xs text-neon-blue uppercase tracking-[0.15em] font-bold flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
+              <label className="block text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">
                 Design Iterations
               </label>
-              <div className="glass-panel px-4 py-1.5 border-purple/30">
-                <span className="text-lg font-bold text-purple">{maxIterations}</span>
+              <div className="px-3 py-1 border border-spacex-border rounded-sm bg-spacex-bg">
+                <span className="text-xs font-bold font-mono text-white">{maxIterations}</span>
               </div>
             </div>
 
@@ -127,100 +116,57 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
               value={maxIterations}
               onChange={(e) => setMaxIterations(parseInt(e.target.value))}
               disabled={isSubmitting || isRunning}
-              className="range-slider"
+              className="w-full h-1 bg-spacex-border rounded-none appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-none"
             />
 
-            <div className="flex justify-between text-[10px] text-gray-500 uppercase tracking-wider">
-              <span>Quick (2)</span>
-              <span className="text-neon-blue">Standard (4)</span>
-              <span>Thorough (6)</span>
+            <div className="flex justify-between text-[10px] text-spacex-text-dim uppercase tracking-wider font-mono">
+              <span>Quick</span>
+              <span>Standard</span>
+              <span>Thorough</span>
             </div>
           </div>
 
           {/* Launch Button */}
           <button
             type="submit"
-            className={`relative w-full overflow-hidden rounded-xl font-bold py-4 uppercase tracking-widest transition-all duration-300 ${
-              isSubmitting || !missionPrompt.trim() || isRunning
-                ? 'bg-spacex-gray text-gray-600 cursor-not-allowed'
-                : 'neon-button'
-            }`}
+            className={`w-full font-bold py-3 uppercase tracking-widest text-xs transition-all duration-200 border border-white hover:bg-white hover:text-black ${isSubmitting || !missionPrompt.trim() || isRunning
+                ? 'opacity-50 cursor-not-allowed border-spacex-border hover:bg-transparent hover:text-inherit'
+                : 'bg-transparent text-white'
+              }`}
             disabled={isSubmitting || !missionPrompt.trim() || isRunning}
           >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center gap-3">
-                <div className="relative w-5 h-5">
-                  <div className="absolute inset-0 border-2 border-black/20 rounded-full" />
-                  <div className="absolute inset-0 border-2 border-transparent border-t-black rounded-full animate-spin" />
-                </div>
-                Initializing...
-              </span>
-            ) : isRunning ? (
-              <span className="flex items-center justify-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-warning-yellow/20 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-warning-yellow animate-pulse" />
-                </div>
-                Mission in Progress
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-3">
-                Launch Mission
-              </span>
-            )}
+            {isSubmitting ? 'Initializing System...' : isRunning ? 'Mission in Progress' : 'Launch Mission'}
           </button>
         </form>
 
         {/* Divider */}
-        <div className="relative">
+        <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/5" />
+            <div className="w-full border-t border-spacex-border" />
           </div>
           <div className="relative flex justify-center">
-            <span className="px-4 bg-transparent text-[10px] text-gray-500 uppercase tracking-wider">
-              Quick Presets
+            <span className="px-2 bg-spacex-black text-[10px] text-spacex-text-dim uppercase tracking-wider">
+              Presets
             </span>
           </div>
         </div>
 
-        {/* Presets */}
-        <div className="space-y-3">
+        {/* Presets - Minimalist */}
+        <div className="grid grid-cols-1 gap-2">
           {presets.map((preset, index) => (
             <button
               key={index}
               onClick={() => setMissionPrompt(preset.prompt)}
               disabled={isSubmitting || isRunning}
-              className={`group relative w-full overflow-hidden rounded-xl p-4 text-left transition-all duration-300 ${
-                isSubmitting || isRunning
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-[1.02] cursor-pointer'
-              }`}
+              className={`group w-full p-3 text-left border border-spacex-border hover:border-white transition-colors duration-200 bg-spacex-bg flex items-center gap-3 ${isSubmitting || isRunning ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                }`}
             >
-              {/* Background Gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${preset.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-
-              {/* Border */}
-              <div className={`absolute inset-0 rounded-xl border ${preset.border} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-
-              {/* Content */}
-              <div className="relative flex items-center gap-4">
-                {/* Icon */}
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${preset.gradient} border ${preset.border} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300`}>
-                  {preset.icon}
-                </div>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1 group-hover:text-neon-blue transition-colors">
-                    {preset.name}
-                  </div>
-                  <div className="text-xs text-gray-500 line-clamp-2 group-hover:text-gray-400 transition-colors">
-                    {preset.prompt.substring(0, 60)}...
-                  </div>
-                </div>
-
-                {/* Arrow */}
-                <div className={`text-neon-blue opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-[-10px] group-hover:translate-x-0`}>
-                  →
+              <div className="w-6 h-6 flex items-center justify-center text-xs font-bold text-spacex-text-dim border border-spacex-border group-hover:text-black group-hover:bg-white group-hover:border-white transition-colors">
+                {preset.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-bold text-spacex-text group-hover:text-white mb-0.5">
+                  {preset.name}
                 </div>
               </div>
             </button>

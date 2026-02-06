@@ -5,6 +5,7 @@ import { getMissionResults } from '../api';
 import * as THREE from 'three';
 
 // Standard Reference Assembly (High-Fidelity Preview)
+// Standard Reference Assembly (High-Fidelity Preview)
 function PreviewAssembly() {
   const group = useRef();
 
@@ -17,37 +18,37 @@ function PreviewAssembly() {
   });
 
   const materialProps = {
-    color: "#1a1a25",
+    color: "#222222",
     metalness: 0.8,
     roughness: 0.2,
     envMapIntensity: 1
   };
 
   const accentProps = {
-    color: "#00f0ff",
-    metalness: 0.5,
-    roughness: 0.2,
-    emissive: "#00f0ff",
-    emissiveIntensity: 0.5
+    color: "#ffffff",
+    metalness: 0.9,
+    roughness: 0.1,
+    emissive: "#cccccc",
+    emissiveIntensity: 0.1
   };
 
   return (
     <group ref={group}>
       <Center>
         <Box args={[1.2, 0.4, 0.6]} castShadow receiveShadow><meshStandardMaterial {...materialProps} /></Box>
-        <Box args={[0.8, 0.5, 0.5]} position={[0, 0.2, 0]} castShadow receiveShadow><meshStandardMaterial {...materialProps} color="#2a2a35" /></Box>
-        <Box args={[0.3, 0.2, 0.1]} position={[0.65, 0, 0]} castShadow><meshStandardMaterial color="#ff004c" emissive="#ff004c" emissiveIntensity={0.8} /></Box>
+        <Box args={[0.8, 0.5, 0.5]} position={[0, 0.2, 0]} castShadow receiveShadow><meshStandardMaterial {...materialProps} color="#1a1a1a" /></Box>
+        <Box args={[0.3, 0.2, 0.1]} position={[0.65, 0, 0]} castShadow><meshStandardMaterial color="#cc0000" emissive="#cc0000" emissiveIntensity={0.2} /></Box>
         {[[-1, 1], [-1, -1], [1, 1], [1, -1]].map(([x, z], i) => (
           <group key={i} position={[x * 0.8, 0, z * 0.8]}>
             <Box args={[1, 0.1, 0.1]} position={[-x * 0.5, 0, -z * 0.5]} rotation={[0, Math.atan2(z, x), 0]}><meshStandardMaterial {...materialProps} /></Box>
             <Cylinder args={[0.25, 0.2, 0.3, 32]} position={[0, 0.1, 0]} castShadow><meshStandardMaterial {...materialProps} /></Cylinder>
             <Torus args={[0.5, 0.02, 16, 50]} rotation={[Math.PI / 2, 0, 0]} position={[0, 0.2, 0]}><meshStandardMaterial {...accentProps} opacity={0.5} transparent /></Torus>
-            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]}><meshStandardMaterial color="#333" /></Box>
-            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]} rotation={[0, Math.PI / 2, 0]}><meshStandardMaterial color="#333" /></Box>
+            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]}><meshStandardMaterial color="#444" /></Box>
+            <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]} rotation={[0, Math.PI / 2, 0]}><meshStandardMaterial color="#444" /></Box>
           </group>
         ))}
         {[[-0.4, 0.3], [0.4, 0.3], [-0.4, -0.3], [0.4, -0.3]].map(([x, z], i) => (
-          <Cylinder key={`leg-${i}`} args={[0.05, 0.02, 0.6]} position={[x, -0.4, z]} rotation={[0.2, 0, z > 0 ? -0.1 : 0.1]}><meshStandardMaterial color="#555" metalness={1} /></Cylinder>
+          <Cylinder key={`leg-${i}`} args={[0.05, 0.02, 0.6]} position={[x, -0.4, z]} rotation={[0.2, 0, z > 0 ? -0.1 : 0.1]}><meshStandardMaterial color="#666" metalness={1} /></Cylinder>
         ))}
       </Center>
     </group>
@@ -96,41 +97,38 @@ function EnvironmentPrompt({ isOpen, onClose, onGenerate }) {
   };
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-[500px] glass-panel border-neon-blue/30 p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-300">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 rounded-full bg-neon-blue/20 flex items-center justify-center border border-neon-blue">
-            <span className="text-neon-blue text-xs">AI</span>
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md">
+      <div className="w-[500px] glass-panel border-spacex-border p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-200">
+        <div className="flex items-center gap-3 mb-2 border-b border-spacex-border pb-4">
+          <div className="w-8 h-8 rounded-sm bg-spacex-surface flex items-center justify-center border border-spacex-border text-white text-xs font-bold font-mono">
+            AI
           </div>
-          <h3 className="text-lg font-bold text-white tracking-wider">GENERATE FLIGHT ENVIRONMENT</h3>
+          <h3 className="text-sm font-bold text-white tracking-wider uppercase">Generate Flight Environment</h3>
         </div>
 
         {isGenerating ? (
-          <div className="py-8 text-center space-y-4">
-            <div className="text-neon-blue font-mono text-sm animate-pulse">
-                > CONTACTING GEMINI API...<br />
-                > PARSING TOPOLOGY REQUEST...<br />
-                > GENERATING VOXEL DATA...
-            </div>
-            <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-neon-blue animate-progress" />
+          <div className="py-12 text-center space-y-4">
+            <div className="text-white font-mono text-xs uppercase tracking-wider animate-pulse flex flex-col gap-2">
+              <span>> Initializing Gemini API...</span>
+              <span>> Parsing Topology Data...</span>
+              <span>> Synthesizing Voxel Geometry...</span>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <p className="text-sm text-gray-400">Describe the environment you want to test your drone in (e.g., "Martian Canyons", "Cyberpunk City", "Windy Plains").</p>
+            <p className="text-xs text-spacex-text-dim uppercase tracking-wider font-bold">Describe the environment you want to test your drone in.</p>
             <textarea
               autoFocus
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Ex: A rocky alien landscape with high winds and low gravity..."
-              className="w-full h-32 bg-black/50 border border-white/10 rounded-lg p-4 text-white placeholder-gray-600 focus:border-neon-blue outline-none resize-none font-mono text-sm"
+              className="w-full h-32 glass-input resize-none font-mono text-xs"
             />
-            <div className="flex justify-end gap-3 mt-2">
-              <button type="button" onClick={onClose} className="px-4 py-2 rounded border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-colors text-xs tracking-wider">
+            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-spacex-border">
+              <button type="button" onClick={onClose} className="px-4 py-2 rounded-sm border border-spacex-border text-spacex-text-dim hover:text-white hover:bg-white/5 transition-colors text-[10px] font-bold uppercase tracking-wider">
                 CANCEL
               </button>
-              <button type="submit" className="px-6 py-2 rounded bg-neon-blue/10 border border-neon-blue text-neon-blue hover:bg-neon-blue/20 transition-all text-xs font-bold tracking-wider shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+              <button type="submit" className="px-6 py-2 rounded-sm bg-white text-black hover:bg-gray-200 transition-all text-[10px] font-bold uppercase tracking-wider">
                 GENERATE & LAUNCH
               </button>
             </div>
@@ -147,16 +145,16 @@ function FlightHUD({ speed, onExit }) {
     <div className="absolute inset-0 pointer-events-none">
       {/* Speedometer */}
       <div className="absolute bottom-12 left-12 flex flex-col gap-1">
-        <div className="text-[10px] text-gray-500 uppercase tracking-widest">Airspeed</div>
-        <div className="text-4xl font-black italic text-neon-blue font-mono tracking-tighter">
-          {(speed * 10).toFixed(0)} <span className="text-sm text-gray-400 not-italic font-normal">MPH</span>
+        <div className="text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">Airspeed</div>
+        <div className="text-4xl font-bold text-white font-mono tracking-tighter">
+          {(speed * 10).toFixed(0)} <span className="text-sm text-spacex-text-dim font-normal">MPH</span>
         </div>
       </div>
 
       {/* Controls Guide */}
       <div className="absolute bottom-12 right-12 text-right">
-        <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Flight Systems Override</div>
-        <div className="flex gap-4 text-xs font-mono text-white/50">
+        <div className="text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold mb-2">Flight Systems Override</div>
+        <div className="flex gap-4 text-[10px] font-mono text-spacex-text-dim">
           <div><strong className="text-white">W/S</strong> PITCH</div>
           <div><strong className="text-white">A/D</strong> ROLL</div>
           <div><strong className="text-white">SPACE/SHIFT</strong> ALT</div>
@@ -166,15 +164,15 @@ function FlightHUD({ speed, onExit }) {
 
       {/* Exit Button (Pointer events enabled) */}
       <div className="absolute top-4 right-4 pointer-events-auto">
-        <button onClick={onExit} className="glass-button px-4 py-2 text-xs border-alert-red text-alert-red hover:bg-alert-red/10">
+        <button onClick={onExit} className="px-4 py-2 border border-error bg-error/10 text-error hover:bg-error/20 text-[10px] font-bold uppercase tracking-wider transition-colors">
           ABORT TEST FLIGHT
         </button>
       </div>
 
       {/* Reticle */}
       <div className="absolute inset-0 flex items-center justify-center opacity-30">
-        <div className="w-12 h-12 border border-white/50 rounded-full flex items-center justify-center">
-          <div className="w-1 h-1 bg-neon-blue rounded-full" />
+        <div className="w-12 h-12 border border-white/30 rounded-full flex items-center justify-center">
+          <div className="w-1 h-1 bg-white rounded-full" />
         </div>
       </div>
     </div>
@@ -222,25 +220,25 @@ function Visualizer3D({ missionId, missionStatus }) {
   const isLoading = missionStatus?.status === 'generating' || (missionStatus?.status === 'complete' && !isReady);
 
   return (
-    <div className="glass-panel overflow-hidden relative h-full min-h-[600px]">
+    <div className="glass-panel overflow-hidden relative h-full min-h-[600px] bg-black">
 
       {/* 3D Canvas */}
       <div className="absolute inset-0">
         <Canvas shadows dpr={[1, 2]}>
           <PerspectiveCamera makeDefault position={[5, 4, 5]} fov={50} />
-          <color attach="background" args={['#0a0a0f']} />
+          <color attach="background" args={['#050505']} />
 
           {/* Lighting & Env */}
           <ambientLight intensity={0.4} />
           <directionalLight position={[10, 10, 5]} intensity={1.2} castShadow height={2048} width={2048} />
           <Environment preset="city" />
-          <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+          {/* Stars removed for industrial aesthetic */}
 
           {mode === 'orbit' && (
             <group>
               {/* Standard Ground */}
-              <Grid cellSize={1} cellThickness={0.02} cellColor="#00f0ff" sectionSize={5} sectionThickness={0.05} sectionColor="#7b2cbf" fadeDistance={30} infiniteGrid />
-              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow><planeGeometry args={[50, 50]} /><meshStandardMaterial color="#0a0a0f" transparent opacity={0.8} /></mesh>
+              <Grid cellSize={1} cellThickness={0.02} cellColor="#333333" sectionSize={5} sectionThickness={0.05} sectionColor="#555555" fadeDistance={30} infiniteGrid />
+              <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow><planeGeometry args={[50, 50]} /><meshStandardMaterial color="#050505" transparent opacity={0.8} /></mesh>
               <OrbitControls enableDamping minDistance={2} maxDistance={15} maxPolarAngle={Math.PI / 2} minPolarAngle={0.1} />
 
               {/* The Model */}
@@ -274,13 +272,12 @@ function Visualizer3D({ missionId, missionStatus }) {
 
       {/* Orbit HUD Header - Only visible in Orbit Mode */}
       {mode === 'orbit' && (
-        <div className="absolute top-0 left-0 right-0 z-10 glass-panel border-0 border-b border-white/5 rounded-none pointer-events-none">
-          <div className="flex items-center justify-between px-6 py-4 pointer-events-auto">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-blue to-purple flex items-center justify-center text-xl font-bold text-white box-glow">3D</div>
+        <div className="absolute top-0 left-0 right-0 z-10 p-4 border-b border-white/5 pointer-events-none bg-gradient-to-b from-black/50 to-transparent">
+          <div className="flex items-center justify-between pointer-events-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-xs font-bold text-white">3D</div>
               <div>
-                <h2 className="text-base font-bold text-white uppercase tracking-wider">3D Visualizer</h2>
-                <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">{isLoading ? 'INITIALIZING...' : 'ORBITAL VIEW'}</p>
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">3D Visualizer</h2>
               </div>
             </div>
 
@@ -288,10 +285,9 @@ function Visualizer3D({ missionId, missionStatus }) {
               {showModel && (
                 <button
                   onClick={startFlightSetup}
-                  className="px-4 py-2 bg-neon-blue/20 border border-neon-blue/50 rounded flex items-center gap-2 hover:bg-neon-blue/30 transition-all group"
+                  className="px-4 py-2 bg-white text-black border border-white rounded-sm flex items-center gap-2 hover:bg-gray-200 transition-all group"
                 >
-                  <span className="text-xs font-bold text-neon-blue tracking-wider group-hover:text-white transition-colors">TEST FLIGHT</span>
-                  <div className="w-2 h-2 bg-neon-blue rounded-full animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">INITIATE TEST FLIGHT</span>
                 </button>
               )}
             </div>
@@ -301,9 +297,9 @@ function Visualizer3D({ missionId, missionStatus }) {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-spacex-black/80 backdrop-blur-sm z-20">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-20">
           <div className="text-center">
-            <div className="text-neon-blue font-bold text-sm tracking-wider animate-pulse">INITIALIZING VISUALIZER...</div>
+            <div className="text-white font-mono text-xs uppercase tracking-wider animate-pulse">> INITIALIZING VISUAL SYSTEM...</div>
           </div>
         </div>
       )}
