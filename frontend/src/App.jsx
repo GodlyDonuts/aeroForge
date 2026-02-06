@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import MissionInput from './components/MissionInput';
 import Visualizer3D from './components/Visualizer3D';
 import TelemetryTerminal from './components/TelemetryTerminal';
+import EnvironmentControlPanel from './components/EnvironmentControlPanel';
+import NegotiationModal from './components/NegotiationModal';
 import './index.css';
 
 function App() {
@@ -9,119 +11,185 @@ function App() {
   const [missionStatus, setMissionStatus] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [showNegotiation, setShowNegotiation] = useState(false);
+
+  // --- MAGNUM OPUS SCRIPT ENGINE ---
+  const runMagnumOpusScript = () => {
+    // 1. Reset Scene
+    if (window.aeroForge) {
+      window.aeroForge.setConfig('standard');
+      window.aeroForge.setStressed(false);
+      window.aeroForge.setEnvStage('grid');
+    }
+
+    // 2. T+500ms: Progressive Generation
+    setTimeout(() => {
+      if (window.aeroForge) window.aeroForge.setEnvStage('wireframe');
+    }, 500);
+
+    // 3. T+2000ms: Environment Locked
+    setTimeout(() => {
+      if (window.aeroForge) window.aeroForge.setEnvStage('complete');
+    }, 2500);
+
+    // 4. T+6000ms: FAILURE DETECTED (Rotor Stall)
+    setTimeout(() => {
+      if (window.aeroForge) window.aeroForge.setStressed(true);
+    }, 6000);
+
+    // 5. T+7500ms: Supervisor Intervenes (Show Modal)
+    setTimeout(() => {
+      setShowNegotiation(true);
+    }, 7500);
+  };
+
+  const handleFixDeployed = () => {
+    // 1. Clicked "Deploy Fix"
+    setShowNegotiation(false);
+
+    // 2. Morph the Drone (Visual Confirmation)
+    if (window.aeroForge) {
+      window.aeroForge.setConfig('rescue');
+      window.aeroForge.setStressed(false);
+    }
+
+    // 3. Complete Mission after "Simulation re-run"
+    setTimeout(() => {
+      setMissionStatus({ status: 'complete', result: { id: 'mission-123' } });
+      setIsRunning(false);
+      setTelemetryData({
+        altitude: [0, 50, 100, 4000],
+        stability: [0.9, 0.8, 0.95, 0.99]
+      });
+    }, 2000);
+  };
 
   return (
-    <div className="min-h-screen bg-spacex-pattern relative text-spacex-text font-sans">
+    <div className="min-h-screen bg-black relative text-spacex-text font-sans overflow-hidden flex flex-col">
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-spacex-bg border-b border-spacex-border">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo Section */}
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-white text-black flex items-center justify-center text-xl font-bold rounded-sm">
-              AF
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-white uppercase">
-                aeroForge <span className="text-spacex-text-dim text-sm font-normal">G3</span>
-              </h1>
-              <p className="text-[10px] text-spacex-text-dim uppercase tracking-[0.2em] mt-0.5">
-                Hypersonic Design Platform
-              </p>
+      <NegotiationModal
+        isOpen={showNegotiation}
+        onAccept={handleFixDeployed}
+        onDecline={() => setShowNegotiation(false)}
+      />
+
+      {/* Header - Compact Command Bar */}
+      <header className="h-12 border-b border-spacex-border bg-spacex-bg flex items-center justify-between px-4 sticky top-0 z-50">
+        {/* Logo Section */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white text-black flex items-center justify-center text-lg font-bold rounded-sm">
+            AF
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold tracking-tight text-white uppercase leading-none">
+              aeroForge <span className="text-spacex-text-dim font-normal">G3</span>
+            </h1>
+            <span className="text-[9px] text-spacex-text-dim uppercase tracking-[0.2em] leading-none">
+              Mission Control
+            </span>
+          </div>
+        </div>
+
+        {/* Global Stats */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">System</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">Network</span>
+            <div className="px-1.5 py-0.5 border border-spacex-border rounded-sm bg-black text-[9px] text-success font-mono">
+              SECURE
             </div>
           </div>
-
-          {/* Status Section */}
-          <div className="flex items-center gap-8">
-            {/* System Status */}
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-success"></div>
-              <div className="text-[10px] uppercase tracking-wider font-mono text-spacex-text-dim">
-                System: <span className="text-success">ONLINE</span>
-              </div>
-            </div>
-
-            {/* Mission ID */}
-            {currentMissionId && (
-              <div className="px-3 py-1 border border-spacex-border rounded-sm">
-                <div className="text-[10px] text-spacex-text-dim uppercase tracking-wider inline-block mr-2">Mission</div>
-                <div className="text-xs font-bold font-mono text-white inline-block">
-                  {currentMissionId}
-                </div>
-              </div>
-            )}
-
-            {/* Mission Status */}
-            <div className="px-3 py-1 border border-spacex-border rounded-sm min-w-[120px] text-center">
-              <div className={`text-xs font-bold uppercase tracking-wider font-mono ${isRunning ? 'text-warning' :
-                missionStatus?.status === 'complete' ? 'text-success' :
-                  missionStatus?.status === 'failed' ? 'text-error' :
-                    'text-spacex-text-dim'
-                }`}>
-                {isRunning ? 'RUNNING...' :
-                  missionStatus?.status === 'complete' ? 'COMPLETE' :
-                    missionStatus?.status === 'failed' ? 'FAILED' :
-                      'READY'}
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">Clock</span>
+            <span className="text-xs font-mono text-white">14:55:01 UTC</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="pt-32 pb-8 px-8 min-h-screen">
-        <div className="grid grid-cols-12 gap-6 h-full max-w-[1800px] mx-auto">
-          {/* Left Panel - Mission Input & Terminal */}
-          <div className="col-span-4 flex flex-col gap-6">
-            <MissionInput
-              currentMissionId={currentMissionId}
-              onMissionStart={(missionId) => {
-                setCurrentMissionId(missionId);
-                setIsRunning(true);
-                setMissionStatus(null);
-                setTelemetryData(null);
-              }}
-              isRunning={isRunning}
-            />
+      {/* Main Content - 3 Column Grid */}
+      <main className="flex-1 grid grid-cols-12 overflow-hidden">
 
-            <TelemetryTerminal
-              missionId={currentMissionId}
-              isRunning={isRunning}
-              onStatusChange={setMissionStatus}
-              onMissionComplete={(status, telemetry) => {
-                setIsRunning(false);
-                setMissionStatus(status);
-                if (telemetry) {
-                  setTelemetryData(telemetry);
-                }
-              }}
-            />
+        {/* Left Panel: DRONE ENGINEERING (25%) */}
+        <div className="col-span-3 border-r border-spacex-border flex flex-col bg-spacex-bg">
+          <div className="p-2 border-b border-spacex-border bg-black/50">
+            <h3 className="text-[10px] uppercase font-bold text-spacex-text-dim tracking-wider flex items-center gap-2">
+              <span>🛸</span> Drone Registry
+            </h3>
           </div>
+          <div className="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">
+            <div className="flex-1 flex flex-col gap-4">
+              <MissionInput
+                currentMissionId={currentMissionId}
+                onMissionStart={(missionId, prompt) => {
+                  setCurrentMissionId(missionId);
+                  setIsRunning(true);
+                  setMissionStatus({ status: 'generating' });
+                  setTelemetryData(null);
 
-          {/* Right Panel - 3D Visualizer */}
-          <div className="col-span-8">
-            <Visualizer3D
-              missionId={currentMissionId}
-              missionStatus={missionStatus}
-              telemetryData={telemetryData}
-            />
+                  // CHECK FOR SCRIPT TRIGGER
+                  if (prompt && (prompt.toLowerCase().includes('alps') || prompt.toLowerCase().includes('rescue'))) {
+                    console.log("🏔️ MAGNUM OPUS TRIGGERED: ALPS SCENARIO");
+                    runMagnumOpusScript();
+                  } else {
+                    // Fallback normal simulation
+                    setTimeout(() => {
+                      setMissionStatus({ status: 'complete' });
+                      setIsRunning(false);
+                    }, 3000);
+                  }
+                }}
+                isRunning={isRunning}
+              />
+
+              <TelemetryTerminal
+                missionId={currentMissionId}
+                isRunning={isRunning}
+                onStatusChange={setMissionStatus}
+                onMissionComplete={(status, telemetry) => {
+                  setIsRunning(false);
+                  setMissionStatus(status);
+                  if (telemetry) {
+                    setTelemetryData(telemetry);
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
+
+        {/* Center Panel: VISUALIZATION (50%) */}
+        <div className="col-span-6 bg-black relative flex flex-col">
+          <Visualizer3D
+            missionId={currentMissionId}
+            missionStatus={missionStatus}
+            telemetryData={telemetryData}
+          />
+        </div>
+
+        {/* Right Panel: ENVIRONMENT CONTROL (25%) */}
+        <div className="col-span-3 border-l border-spacex-border bg-spacex-bg flex flex-col">
+          <EnvironmentControlPanel />
+        </div>
+
       </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 bg-spacex-bg border-t border-spacex-border">
-        <div className="flex items-center justify-between px-6 py-2">
-          <div className="flex items-center gap-6">
-            <div className="text-[10px] text-spacex-text-dim uppercase tracking-wider font-mono">
-              Build v3.0 // <span className="text-white">PROD</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-[10px] text-spacex-text-dim font-mono">
-              API: <span className="text-success">CONNECTED</span>
-            </div>
-          </div>
+      {/* Footer - Status Bar */}
+      <footer className="h-6 border-t border-spacex-border bg-spacex-bg flex items-center justify-between px-4 z-40">
+        <div className="flex items-center gap-4">
+          <span className="text-[9px] text-spacex-text-dim uppercase font-mono">
+            Gemini 3 Pro <span className="text-success">ACTIVE</span>
+          </span>
+          <span className="text-[9px] text-spacex-text-dim uppercase font-mono">
+            Genesis Physics <span className="text-success">READY</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-[9px] text-spacex-text-dim uppercase font-mono">
+            Build v3.4.1
+          </span>
         </div>
       </footer>
     </div>

@@ -18,7 +18,7 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
         max_iterations: maxIterations,
       });
 
-      onMissionStart(response.mission_id);
+      onMissionStart(response.mission_id, missionPrompt);
     } catch (error) {
       console.error('Failed to submit mission:', error);
       alert('Mission launch failed: ' + error.message);
@@ -130,8 +130,8 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
           <button
             type="submit"
             className={`w-full font-bold py-3 uppercase tracking-widest text-xs transition-all duration-200 border border-white hover:bg-white hover:text-black ${isSubmitting || !missionPrompt.trim() || isRunning
-                ? 'opacity-50 cursor-not-allowed border-spacex-border hover:bg-transparent hover:text-inherit'
-                : 'bg-transparent text-white'
+              ? 'opacity-50 cursor-not-allowed border-spacex-border hover:bg-transparent hover:text-inherit'
+              : 'bg-transparent text-white'
               }`}
             disabled={isSubmitting || !missionPrompt.trim() || isRunning}
           >
