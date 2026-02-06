@@ -1,24 +1,35 @@
 import React, { useState } from 'react';
 import { submitMission } from '../api';
 
-function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
-  const [missionPrompt, setMissionPrompt] = useState('');
+function MissionInput({ currentMissionId, onMissionStart, isRunning, initialPrompt, autoSubmit }) {
+  const [missionPrompt, setMissionPrompt] = useState(initialPrompt || '');
   const [maxIterations, setMaxIterations] = useState(4);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasAutoLaunched, setHasAutoLaunched] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!missionPrompt.trim()) return;
+  // Auto-launch effect
+  React.useEffect(() => {
+    if (initialPrompt && autoSubmit && !hasAutoLaunched) {
+      setHasAutoLaunched(true);
+      handleSubmit(null, initialPrompt);
+    }
+  }, [initialPrompt, autoSubmit]);
+
+  const handleSubmit = async (e, overridePrompt = null) => {
+    if (e) e.preventDefault();
+    const promptToSubmit = overridePrompt || missionPrompt;
+
+    if (!promptToSubmit.trim()) return;
 
     setIsSubmitting(true);
 
     try {
       const response = await submitMission({
-        prompt: missionPrompt,
+        prompt: promptToSubmit,
         max_iterations: maxIterations,
       });
 
-      onMissionStart(response.mission_id, missionPrompt);
+      onMissionStart(response.mission_id, promptToSubmit);
     } catch (error) {
       console.error('Failed to submit mission:', error);
       alert('Mission launch failed: ' + error.message);
@@ -28,11 +39,6 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning }) {
   };
 
   const presets = [
-    {
-      name: 'Mars Explorer',
-      prompt: 'Design a quadcopter drone for Mars atmosphere with 2kg payload capacity. Must be stable in high winds and operate for at least 30 minutes. Use carbon fiber for lightweight construction.',
-      icon: 'M',
-    },
     {
       name: 'High-Speed Racing',
       prompt: 'Design a high-speed racing drone capable of reaching 150 km/h. Focus on aerodynamic efficiency and minimal drag. Use slim arms and streamlined fuselage.',

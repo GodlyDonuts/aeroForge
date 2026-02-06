@@ -85,18 +85,6 @@ function EnvironmentControlPanel() {
 
                     <div className="bg-spacex-surface border border-spacex-border p-2 rounded-sm space-y-2">
                         <div className="flex justify-between items-center text-xs font-mono">
-                            <span className="text-spacex-text-dim">GRAVITY</span>
-                            <div className="px-2 py-0.5 bg-black border border-spacex-border text-spacex-text-dim rounded-sm">
-                                LOCKED (EARTH)
-                            </div>
-                        </div>
-                        <div className="text-right text-lg font-bold text-white font-mono">
-                            9.81 m/s²
-                        </div>
-                    </div>
-
-                    <div className="bg-spacex-surface border border-spacex-border p-2 rounded-sm space-y-2">
-                        <div className="flex justify-between items-center text-xs font-mono">
                             <span className="text-spacex-text-dim">ALTITUDE</span>
                             <span className="text-warning">HIGH</span>
                         </div>

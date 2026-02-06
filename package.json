@@ -2,7 +2,7 @@
   "name": "aeroForge",
   "version": "1.0.0",
   "private": true,
-  "description": "LiquidMetal AI workspace",
+  "description": "Gemini Powered Drone Designer and Simulator",
   "workspaces": [
     "apps/*"
   ],

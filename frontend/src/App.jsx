@@ -4,6 +4,7 @@ import Visualizer3D from './components/Visualizer3D';
 import TelemetryTerminal from './components/TelemetryTerminal';
 import EnvironmentControlPanel from './components/EnvironmentControlPanel';
 import NegotiationModal from './components/NegotiationModal';
+import MissionInitiation from './components/MissionInitiation';
 import './index.css';
 
 function App() {
@@ -12,6 +13,10 @@ function App() {
   const [telemetryData, setTelemetryData] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [showNegotiation, setShowNegotiation] = useState(false);
+
+  // Landing State
+  const [hasLaunched, setHasLaunched] = useState(false);
+  const [landingPrompt, setLandingPrompt] = useState("");
 
   // --- MAGNUM OPUS SCRIPT ENGINE ---
   const runMagnumOpusScript = () => {
@@ -64,8 +69,19 @@ function App() {
     }, 2000);
   };
 
+  if (!hasLaunched) {
+    return (
+      <MissionInitiation
+        onStart={(prompt) => {
+          setLandingPrompt(prompt);
+          setHasLaunched(true);
+        }}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-black relative text-spacex-text font-sans overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-black relative text-spacex-text font-sans overflow-hidden flex flex-col animate-in fade-in duration-1000">
 
       <NegotiationModal
         isOpen={showNegotiation}
@@ -123,6 +139,8 @@ function App() {
             <div className="flex-1 flex flex-col gap-4">
               <MissionInput
                 currentMissionId={currentMissionId}
+                initialPrompt={landingPrompt}
+                autoSubmit={true}
                 onMissionStart={(missionId, prompt) => {
                   setCurrentMissionId(missionId);
                   setIsRunning(true);
