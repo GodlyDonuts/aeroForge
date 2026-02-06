@@ -139,38 +139,43 @@ aeroForge-G3 uses a **three-agent collaborative architecture** powered by LangGr
 
 ## 🎨 User Experience
 
-### Stunning Glassmorphism UI
+### Industrial Minimalist UI (SpaceX-Style)
 
-Our interface features **Apple-inspired glassmorphism** with a SpaceX color palette:
+Our interface features a **strict industrial minimalist design** inspired by modern aerospace command centers (SpaceX, xAI):
 
-- **Neon Blue** (#00f0ff) - Primary accents
-- **Deep Purple** (#7b2cbf) - Secondary highlights
-- **Success Green** (#00ff88) - Status indicators
-- **Void Black** (#0a0a0f) - Immersive backgrounds
+- **Void Black** (#000000) - Primary background
+- **Carbon Gray** (#111111) - Surface panels
+- **SpaceX Gray** (#888888) - Borders and muted text
+- **Signal White** (#ffffff) - High-contrast data
+- **Functional Colors** - Success (Green), Warning (Yellow), Error (Red) - No neon glow.
 
 ### Key Features
 
-1. **📋 Mission Control Panel**
+1. ***🧠 Reasoning Engine ("Deep Think")***
+   - Visualizes the AI's "internal monologue" (System 2 thinking).
+   - Shows real-time engineering decisions (e.g., *"Optimizing moment of inertia..."*, *"Calculating Reynolds number..."*).
+   - Builds trust by exposing the "Why" behind the design.
+
+2. **📋 Mission Control Panel**
    - Natural language input
-   - Quick presets (Mars Explorer, Racing Drone, Heavy Lift)
+   - Technical parameter list
    - Iteration control slider
 
-2. **💻 Telemetry Terminal**
-   - Real-time agent logs
-   - Color-coded by agent type
-   - Progress tracking
-   - Error highlighting
+3. **💻 Telemetry Terminal**
+   - High-contrast, low-latency logs
+   - Unified datastream from all agents
+   - Professional CLI aesthetic
 
-3. **🎨 3D Visualizer**
+4. **🎨 3D Visualizer**
    - Interactive orbit controls
-   - Grid overlay
-   - Particle effects
-   - HUD overlay
+   - **Environment Context** (Martian surface, Earth atmosphere)
+   - Real-time CAD rendering
+   - Grid overlay and scale reference
 
-4. **📊 Live Dashboard**
-   - System status indicators
-   - Mission tracking
-   - Connection monitoring
+5. **📊 Live Telemetry**
+   - 60Hz physics data visualization
+   - Position, Velocity, and Energy graphs
+   - Real-time stability metrics
 
 ---
 
