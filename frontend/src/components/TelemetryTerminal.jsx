@@ -100,9 +100,9 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
   }
 
   return (
-    <div className="glass-panel flex-1 flex flex-col overflow-hidden min-h-[400px]">
+    <div className="glass-panel w-full h-[400px] flex flex-col overflow-hidden">
       {/* Terminal Header */}
-      <div className="p-4 border-b border-spacex-border bg-spacex-bg">
+      <div className="p-4 border-b border-spacex-border bg-spacex-bg shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-sm font-bold text-white">
@@ -116,8 +116,8 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
           {status && (
             <div className="px-3 py-1 border border-spacex-border rounded-sm bg-spacex-bg">
               <span className={`text-[10px] font-bold uppercase tracking-wider ${status.status === 'complete' ? 'text-success' :
-                  status.status === 'failed' ? 'text-error' :
-                    'text-warning'
+                status.status === 'failed' ? 'text-error' :
+                  'text-warning'
                 }`}>
                 {status.status === 'complete' ? 'COMPLETE' :
                   status.status === 'failed' ? 'FAILED' :
@@ -169,8 +169,8 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
               <div className="flex-1 h-1 bg-spacex-surface rounded-none overflow-hidden border border-spacex-border">
                 <div
                   className={`h-full transition-all duration-300 ${status.status === 'complete' ? 'bg-success' :
-                      status.status === 'failed' ? 'bg-error' :
-                        'bg-white'
+                    status.status === 'failed' ? 'bg-error' :
+                      'bg-white'
                     }`}
                   style={{
                     width: `${(status.iteration / (status.max_iterations || 4)) * 100}%`,
@@ -227,7 +227,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
           <div className="mt-4 pt-2 border-t border-error">
             <div className="text-[10px] text-error font-bold uppercase tracking-wider mb-2">Errors Detected</div>
             {errors.map((error, index) => (
-              <div key={index} className="text-error mb-1">> {error}</div>
+              <div key={index} className="text-error mb-1">{'>'} {error}</div>
             ))}
           </div>
         )}
@@ -235,7 +235,7 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
         {status?.status === 'complete' && (
           <div className="mt-4 pt-2 border-t border-success">
             <div className="text-success font-bold uppercase tracking-wider text-sm">
-              >> MISSION SEQUENCE COMPLETE
+              {'>'}{'>'} MISSION SEQUENCE COMPLETE
             </div>
           </div>
         )}

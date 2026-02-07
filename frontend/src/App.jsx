@@ -5,6 +5,7 @@ import TelemetryTerminal from './components/TelemetryTerminal';
 import EnvironmentControlPanel from './components/EnvironmentControlPanel';
 import NegotiationModal from './components/NegotiationModal';
 import MissionInitiation from './components/MissionInitiation';
+import SimulationEngine from './engine/SimulationEngine';
 import './index.css';
 
 function App() {
@@ -18,47 +19,27 @@ function App() {
   const [hasLaunched, setHasLaunched] = useState(false);
   const [landingPrompt, setLandingPrompt] = useState("");
 
-  // --- MAGNUM OPUS SCRIPT ENGINE ---
-  const runMagnumOpusScript = () => {
-    // 1. Reset Scene
-    if (window.aeroForge) {
-      window.aeroForge.setConfig('standard');
-      window.aeroForge.setStressed(false);
-      window.aeroForge.setEnvStage('grid');
-    }
-
-    // 2. T+500ms: Progressive Generation
-    setTimeout(() => {
-      if (window.aeroForge) window.aeroForge.setEnvStage('wireframe');
-    }, 500);
-
-    // 3. T+2000ms: Environment Locked
-    setTimeout(() => {
-      if (window.aeroForge) window.aeroForge.setEnvStage('complete');
-    }, 2500);
-
-    // 4. T+6000ms: FAILURE DETECTED (Rotor Stall)
-    setTimeout(() => {
-      if (window.aeroForge) window.aeroForge.setStressed(true);
-    }, 6000);
-
-    // 5. T+7500ms: Supervisor Intervenes (Show Modal)
-    setTimeout(() => {
-      setShowNegotiation(true);
-    }, 7500);
+  // --- DETERMINISTIC SIMULATION ENGINE ---
+  const runSimulationScenario = (scenarioId) => {
+    // Execute Deterministic Scenario via Engine
+    SimulationEngine.execute(window, (event) => {
+      if (event === 'SUPERVISOR_INTERVENTION') {
+        setShowNegotiation(true);
+      }
+    });
   };
 
   const handleFixDeployed = () => {
     // 1. Clicked "Deploy Fix"
     setShowNegotiation(false);
 
-    // 2. Morph the Drone (Visual Confirmation)
+    // 2. Engine: Apply Correction
     if (window.aeroForge) {
       window.aeroForge.setConfig('rescue');
       window.aeroForge.setStressed(false);
     }
 
-    // 3. Complete Mission after "Simulation re-run"
+    // 3. Engine: Validate & Complete
     setTimeout(() => {
       setMissionStatus({ status: 'complete', result: { id: 'mission-123' } });
       setIsRunning(false);
@@ -107,21 +88,9 @@ function App() {
         </div>
 
         {/* Global Stats */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">System</span>
-            <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">Network</span>
-            <div className="px-1.5 py-0.5 border border-spacex-border rounded-sm bg-black text-[9px] text-success font-mono">
-              SECURE
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-spacex-text-dim uppercase font-mono">Clock</span>
-            <span className="text-xs font-mono text-white">14:55:01 UTC</span>
-          </div>
+        {/* Global Stats - Removed for realism */}
+        <div className="flex items-center gap-6 opacity-0 pointer-events-none">
+          {/* Placeholder if layout needs it, or just empty */}
         </div>
       </header>
 
@@ -149,8 +118,11 @@ function App() {
 
                   // CHECK FOR SCRIPT TRIGGER
                   if (prompt && (prompt.toLowerCase().includes('alps') || prompt.toLowerCase().includes('rescue'))) {
-                    console.log("🏔️ MAGNUM OPUS TRIGGERED: ALPS SCENARIO");
-                    runMagnumOpusScript();
+                    console.log("🏔️ SIMULATION ENGINE TRIGGERED: SCENARIO_ID: ALPINE_RESCUE");
+                    // Pre-load scenario (async in real app, sync here for reliability)
+                    SimulationEngine.loadScenario('ALPINE_RESCUE').then(() => {
+                      runSimulationScenario('ALPINE_RESCUE');
+                    });
                   } else {
                     // Fallback normal simulation
                     setTimeout(() => {

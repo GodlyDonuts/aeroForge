@@ -66,7 +66,7 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
               M
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Mission Parameters</h2>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Drone Parameters</h2>
             </div>
           </div>
 
@@ -87,11 +87,11 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
           {/* Mission Description */}
           <div className="space-y-2">
             <label className="block text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">
-              Mission Description
+              Drone Specification
             </label>
             <textarea
               className="glass-input w-full min-h-[100px] resize-none font-mono text-xs leading-relaxed"
-              placeholder="Describe the aerospace design requirements..."
+              placeholder="Describe the drone configuration..."
               value={missionPrompt}
               onChange={(e) => setMissionPrompt(e.target.value)}
               disabled={isSubmitting || isRunning}
@@ -141,43 +141,9 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
               }`}
             disabled={isSubmitting || !missionPrompt.trim() || isRunning}
           >
-            {isSubmitting ? 'Initializing System...' : isRunning ? 'Mission in Progress' : 'Launch Mission'}
+            {isSubmitting ? 'Processing...' : isRunning ? 'Update in Progress' : 'Update Drone'}
           </button>
         </form>
-
-        {/* Divider */}
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-spacex-border" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-2 bg-spacex-black text-[10px] text-spacex-text-dim uppercase tracking-wider">
-              Presets
-            </span>
-          </div>
-        </div>
-
-        {/* Presets - Minimalist */}
-        <div className="grid grid-cols-1 gap-2">
-          {presets.map((preset, index) => (
-            <button
-              key={index}
-              onClick={() => setMissionPrompt(preset.prompt)}
-              disabled={isSubmitting || isRunning}
-              className={`group w-full p-3 text-left border border-spacex-border hover:border-white transition-colors duration-200 bg-spacex-bg flex items-center gap-3 ${isSubmitting || isRunning ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                }`}
-            >
-              <div className="w-6 h-6 flex items-center justify-center text-xs font-bold text-spacex-text-dim border border-spacex-border group-hover:text-black group-hover:bg-white group-hover:border-white transition-colors">
-                {preset.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-spacex-text group-hover:text-white mb-0.5">
-                  {preset.name}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
