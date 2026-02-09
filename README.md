@@ -24,8 +24,8 @@
 
 ### 🎯 The Vision
 
-What if you could design a Mars exploration drone simply by saying:
-> *"Design a quadcopter for Mars atmosphere with 2kg payload capacity, stable in high winds, operating 30+ minutes."*
+What if you could design a disaster relief drone simply by saying:
+> *"Design a quadcopter for mountain rescue operations with 5kg payload capacity, stable in high winds, operating 45+ minutes."*
 
 **aeroForge-G3 makes this possible.**
 
@@ -225,7 +225,7 @@ npm run dev
 ### Launch Your First Mission
 
 1. Open **http://localhost:5173**
-2. Select a preset (e.g., "Mars Explorer")
+2. Select a preset (e.g., "Mountain Rescue")
 3. Click **"🚀 Launch Mission"**
 4. Watch the AI design, simulate, and optimize in real-time!
 
@@ -244,7 +244,7 @@ npm run dev
 │  │                  │  │                              │  │
 │  │  "Design a       │  │  [14:23:01] [DESIGNER]       │  │
 │  │   quadcopter     │  │  ✓ CAD code generated         │  │
-│  │   for Mars..."    │  │  [14:23:02] [SIMULATOR]      │  │
+│  │   for Rescue..."  │  │  [14:23:02] [SIMULATOR]      │  │
 │  │                  │  │  ✓ Simulation complete        │  │
 │  │  [Launch Mission] │  │  [14:23:03] [SUPERVISOR]     │  │
 │  │                  │  │  ✓ Analyzing results...       │  │
@@ -263,8 +263,8 @@ npm run dev
 
 ## 🎯 Example Missions
 
-### Mars Exploration Drone
-> "Design a quadcopter drone for Mars atmosphere with 2kg payload capacity. Must be stable in high winds and operate for at least 30 minutes. Use carbon fiber for lightweight construction."
+### Mountain Rescue Drone
+> "Design a quadcopter drone for high-altitude mountain rescue operations with 5kg payload capacity (medical supplies). Must be stable in high winds (up to 60km/h) and operate for at least 45 minutes. Use carbon fiber reinforced polymer for durability."
 
 **AI Generates:**
 - Extended arm configuration for stability
@@ -388,8 +388,8 @@ Built on **LangGraph** for easy agent addition, **LangChain** for LLM integratio
 
 ### v4.0 - Vision
 - [ ] Full aircraft generation (fixed-wing)
-- [ ] Rocket stage optimization
-- [ ] Satellite constellation design
+- [ ] Autonomous swarm coordination
+- [ ] Submersible vehicle generation
 - [ ] Integration with real-world testing
 
 ---
