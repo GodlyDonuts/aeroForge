@@ -60,6 +60,17 @@ function Visualizer3D({ missionId, missionStatus, telemetryData }) {
     };
   }, []);
 
+  // Sync loading state with mission status to prevent flash of content
+  useEffect(() => {
+    if (missionStatus?.status === 'generating') {
+      setIsLoading(true);
+      setLoadingMessage('GENERATING GEOMETRY...');
+    } else if (missionStatus?.status === 'complete' || missionStatus?.status === 'running') {
+      // Optional: Ensure it clears if not handled by event, but events usually handle it
+      // We'll leave it to events for 'running', but 'complete' might be a safe fallback
+    }
+  }, [missionStatus]);
+
   // Listen for demo orchestrator updates
   useEffect(() => {
     // Listen for demo orchestrator updates

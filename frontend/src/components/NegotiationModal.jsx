@@ -4,93 +4,92 @@ function NegotiationModal({ isOpen, onAccept, onDecline }) {
     if (!isOpen) return null;
 
     return (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
 
-            <div className="w-[600px] border-2 border-warning bg-black shadow-[0_0_50px_rgba(255,170,0,0.2)] flex flex-col relative overflow-hidden">
+            <div className="w-[600px] border border-cyan-500/50 bg-black shadow-[0_0_50px_rgba(6,182,212,0.1)] flex flex-col relative overflow-hidden group">
 
-                {/* Striped Warning Bar */}
-                <div className="h-2 bg-[repeating-linear-gradient(45deg,#ffaa00,#ffaa00_10px,#000_10px,#000_20px)]"></div>
+                {/* Decorative Corners */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500"></div>
+
+                {/* Scanline Effect */}
+                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_2px,3px_100%]"></div>
 
                 {/* Header */}
-                <div className="p-6 border-b border-warning/30 flex items-start gap-4">
-                    <div className="w-12 h-12 bg-warning/20 border border-warning text-warning flex items-center justify-center text-2xl animate-pulse">
-                        ⚠️
-                    </div>
-                    <div className="flex-1">
-                        <h2 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                            Critical Design Failure
-                            <span className="px-2 py-0.5 bg-error text-white text-[10px] uppercase font-bold tracking-widest rounded-sm animate-pulse">
-                                Action Required
-                            </span>
+                <div className="p-4 border-b border-cyan-500/30 bg-cyan-950/20 flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                        <h2 className="text-sm font-bold text-cyan-400 font-mono tracking-widest uppercase">
+                            SIMULATION AGENT REPORT // <span className="text-white">FAILURE_EVENT_091</span>
                         </h2>
-                        <div className="mt-2 text-warning font-mono text-xs uppercase tracking-wider">
-                            Physics Engine / Fluid Dynamics Module
-                        </div>
+                    </div>
+                    <div className="text-[10px] text-cyan-500/70 font-mono">
+                        T+{Math.floor(Date.now() / 1000) % 10000}
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-6">
+                <div className="p-6 space-y-6 relative z-10 font-mono">
 
-                    {/* The Analysis */}
-                    <div className="p-4 bg-spacex-surface border-l-2 border-error">
-                        <p className="font-mono text-sm text-gray-300 leading-relaxed">
-                            <span className="text-error font-bold">FATAL ERROR DETECTED:</span> Current rotor geometry produces insufficient lift at <span className="text-white">4000m altitude</span> (0.6 atm). Deployment will result in catastrophic stall and loss of vehicle.
-                        </p>
+                    {/* Section 1: Anomaly */}
+                    <div className="flex gap-4">
+                        <div className="w-24 text-[10px] text-error font-bold tracking-widest uppercase pt-1 text-right shrink-0">
+                            Detected<br />Anomaly
+                        </div>
+                        <div className="flex-1 p-3 border-l-2 border-error bg-error/5">
+                            <p className="text-xs text-spacex-text leading-relaxed">
+                                <strong className="text-white">CRITICAL LIFT FAILURE.</strong> The current rotor geometry generates insufficient lift coefficient (Cl &lt; 0.4) at operational altitude.
+                            </p>
+                        </div>
                     </div>
 
-                    {/* The Proposal */}
-                    <div>
-                        <h3 className="text-xs font-bold text-spacex-text-dim uppercase tracking-wider mb-3">
-                            Reasoning Engine Proposal
-                        </h3>
-                        <div className="border border-spacex-border p-4 bg-spacex-surface/50">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="px-2 py-1 bg-success/20 text-success border border-success/50 text-[10px] font-bold uppercase tracking-widest">
-                                    RECOMMENDATION #1
-                                </div>
-                                <span className="text-sm font-bold text-white">High-Altitude Geometric Compensator</span>
+                    {/* Section 2: Impact */}
+                    <div className="flex gap-4">
+                        <div className="w-24 text-[10px] text-warning font-bold tracking-widest uppercase pt-1 text-right shrink-0">
+                            Impact<br />Prediction
+                        </div>
+                        <div className="flex-1 p-3 border-l-2 border-warning bg-warning/5">
+                            <p className="text-xs text-spacex-text leading-relaxed">
+                                Catastrophic stall at <span className="text-white">4000m</span>. 100% probability of vehicle loss. Mission constraints cannot be met with current configuration.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Section 3: Solution */}
+                    <div className="flex gap-4">
+                        <div className="w-24 text-[10px] text-cyan-400 font-bold tracking-widest uppercase pt-1 text-right shrink-0">
+                            Proposed<br />Solution
+                        </div>
+                        <div className="flex-1 p-3 border-l-2 border-cyan-500 bg-cyan-900/10">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold text-white uppercase">Parametric Rotor Redesign</span>
+                                <span className="text-[10px] px-2 py-0.5 bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded">CONFIDENCE: 98%</span>
                             </div>
-
-                            {/* Comparison Table */}
-                            <div className="grid grid-cols-3 gap-px bg-spacex-border">
-                                <div className="bg-spacex-surface p-2 text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">Metric</div>
-                                <div className="bg-spacex-surface p-2 text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold text-center">Current</div>
-                                <div className="bg-spacex-surface p-2 text-[10px] text-success uppercase tracking-wider font-bold text-center bg-success/5">Proposed</div>
-
-                                {/* Row 1 */}
-                                <div className="bg-black p-2 text-xs font-mono text-gray-400">Blade Chord</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-error border-l border-spacex-border">Standard</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-success border-l border-spacex-border font-bold">+15% (Wide)</div>
-
-                                {/* Row 2 */}
-                                <div className="bg-black p-2 text-xs font-mono text-gray-400">Est. Flight Time</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-white border-l border-spacex-border">34 mins</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-warning border-l border-spacex-border">32 mins</div>
-
-                                {/* Row 3 */}
-                                <div className="bg-black p-2 text-xs font-mono text-gray-400">Stability @ 4km</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-error border-l border-spacex-border font-bold">CRITICAL</div>
-                                <div className="bg-black p-2 text-xs font-mono text-center text-success border-l border-spacex-border font-bold">OPTIMAL</div>
-                            </div>
+                            <ul className="text-[10px] text-cyan-300 space-y-1 list-disc pl-4">
+                                <li>Increase blade chord by +15%</li>
+                                <li>Optimize angle of attack for thin atmosphere</li>
+                                <li>Switch to high-RPM motor config</li>
+                            </ul>
                         </div>
                     </div>
 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 pt-0 flex gap-4">
+                <div className="p-4 border-t border-spacex-border bg-spacex-bg/50 flex gap-4 relative z-10 z-50">
                     <button
                         onClick={onDecline}
-                        className="flex-1 py-3 border border-spacex-border text-spacex-text-dim hover:text-white hover:bg-white/5 uppercase tracking-widest text-xs font-bold transition-colors"
+                        className="flex-1 py-3 border border-spacex-border text-spacex-text-dim hover:text-white hover:bg-white/5 uppercase tracking-widest text-[10px] font-bold transition-colors font-mono"
                     >
-                        Ignore Warning
+                        OVERRIDE & LAUNCH
                     </button>
                     <button
                         onClick={onAccept}
-                        className="flex-[2] py-3 bg-white text-black hover:bg-gray-200 uppercase tracking-widest text-xs font-bold transition-colors flex items-center justify-center gap-2 group"
+                        className="flex-[2] py-3 bg-cyan-600 hover:bg-cyan-500 text-white uppercase tracking-widest text-[10px] font-bold transition-colors flex items-center justify-center gap-2 group font-mono shadow-[0_0_20px_rgba(6,182,212,0.4)]"
                     >
-                        <span>Deploy Engineering Fix</span>
+                        <span>AUTHORIZE DESIGNER FIX</span>
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </button>
                 </div>

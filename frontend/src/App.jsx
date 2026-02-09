@@ -69,6 +69,14 @@ function App() {
       window.aeroForge.setStressed(false);
     }
 
+    // 3. Resume Demo Orchestrator (if active)
+    import('./engine/SimpleDemo').then((module) => {
+      const orchestrator = module.simpleDemoOrchestrator;
+      if (orchestrator && orchestrator.isRunning) {
+        orchestrator.continueAfterFix();
+      }
+    });
+
     // 3. Engine: Validate & Complete
     setTimeout(() => {
       setMissionStatus({ status: 'complete', result: { id: 'mission-123' } });
