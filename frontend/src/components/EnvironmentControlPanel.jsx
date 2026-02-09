@@ -7,9 +7,6 @@ function EnvironmentControlPanel() {
     const [intensity, setIntensity] = useState(4);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Demo mode presets
-    const [selectedEnvironment, setSelectedEnvironment] = useState('himalayan');
-
     // Terminal State
     const [logs, setLogs] = useState([
         { text: 'init_sequence_complete', type: 'info' },
@@ -24,65 +21,6 @@ function EnvironmentControlPanel() {
             terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
         }
     }, [logs]);
-
-    const handleEnvironmentSelect = (env) => {
-        setSelectedEnvironment(env);
-
-        const envConfigs = {
-            himalayan: {
-                name: 'Himalayan High-Altitude',
-                temp: '-30°C',
-                altitude: '5000m',
-                wind: '50km/h',
-                logs: [
-                    { text: '> env: loading_biome [ALPINE_TUNDRA]', type: 'highlight' },
-                    { text: '  density: 0.65 kg/m³ (High Altitude)', type: 'info' },
-                    { text: '  temperature: -25°C (Sub-zero)', type: 'warning' },
-                    { text: '  wind_shear: 50km/h (Turbulence Lvl 4)', type: 'warning' },
-                    { text: '✓ physics_bake: complete', type: 'success' }
-                ]
-            },
-            arctic: {
-                name: 'Arctic Extreme',
-                temp: '-40°C',
-                altitude: '200m',
-                wind: '30km/h',
-                logs: [
-                    { text: '> env: loading_arctic_conditions...', type: 'highlight' },
-                    { text: '  temperature: -40°C (critical)', type: 'error' },
-                    { text: '  ice_accumulation: active', type: 'warning' },
-                    { text: '✓ environment_simulated', type: 'success' }
-                ]
-            },
-            desert: {
-                name: 'Desert Operations',
-                temp: '45°C',
-                altitude: '100m',
-                wind: '20km/h',
-                logs: [
-                    { text: '> env: loading_desert_conditions...', type: 'highlight' },
-                    { text: '  temperature: 45°C (thermal load)', type: 'warning' },
-                    { text: '  visibility: moderate (dust)', type: 'info' },
-                    { text: '✓ environment_simulated', type: 'success' }
-                ]
-            },
-            urban: {
-                name: 'Urban Mission',
-                temp: '20°C',
-                altitude: '50m',
-                wind: '15km/h',
-                logs: [
-                    { text: '> env: loading_urban_environment...', type: 'highlight' },
-                    { text: '  gps_signal: strong', type: 'success' },
-                    { text: '  obstacles: buildings, powerlines', type: 'info' },
-                    { text: '✓ environment_simulated', type: 'success' }
-                ]
-            }
-        };
-
-        const config = envConfigs[env];
-        setLogs(prev => [...prev, ...config.logs]);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -115,56 +53,7 @@ function EnvironmentControlPanel() {
         <div className="h-full flex flex-col bg-spacex-bg">
             <div className="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">
 
-                {/* 1. ENVIRONMENT SELECTOR */}
-                <div className="glass-panel">
-                    {/* Header */}
-                    <div className="p-4 border-b border-spacex-border">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-sm font-bold text-white font-mono">
-                                    E
-                                </div>
-                                <div>
-                                    <h2 className="text-sm font-bold text-white uppercase tracking-wider">Environment</h2>
-                                </div>
-                            </div>
 
-                            <div className={`px-3 py-1 border rounded-sm bg-spacex-bg ${selectedEnvironment === 'himalayan' ? 'border-success/50 text-success' : 'border-spacex-border text-spacex-text-dim'}`}>
-                                <span className="text-[10px] font-bold uppercase tracking-wider">
-                                    {selectedEnvironment === 'himalayan' ? 'ACTIVE' : 'STANDBY'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Body - Environment Presets */}
-                    <div className="p-4 space-y-3">
-                        <label className="block text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">
-                            Preset Environments
-                        </label>
-
-                        <div className="grid grid-cols-2 gap-2">
-                            {[
-                                { id: 'himalayan', label: '🏔️ Himalayan', desc: '-30°C, 5000m, 50km/h' },
-                                { id: 'arctic', label: '❄️ Arctic', desc: '-40°C, Extreme' },
-                                { id: 'desert', label: '🏜️ Desert', desc: '45°C, Dust' },
-                                { id: 'urban', label: '🏙️ Urban', desc: '20°C, Obstacles' }
-                            ].map(env => (
-                                <button
-                                    key={env.id}
-                                    onClick={() => handleEnvironmentSelect(env.id)}
-                                    className={`p-3 border rounded-sm text-left transition-all ${selectedEnvironment === env.id
-                                            ? 'border-success/50 bg-success/10'
-                                            : 'border-spacex-border hover:border-spacex-text-dim'
-                                        }`}
-                                >
-                                    <div className="text-xs font-bold text-white mb-1">{env.label}</div>
-                                    <div className="text-[10px] text-spacex-text-dim font-mono">{env.desc}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
 
                 {/* 2. CUSTOM INPUT PANEL */}
                 <div className="glass-panel">

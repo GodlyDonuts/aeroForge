@@ -141,7 +141,11 @@ function Visualizer3D({ missionId, missionStatus, telemetryData }) {
     <div className="flex-1 bg-black relative overflow-hidden h-full">
       <Canvas shadows dpr={[1, 2]}>
         <PerspectiveCamera makeDefault position={[21.30, 82.71, 2.39]} fov={60} />
-        <color attach="background" args={['#000000']} />
+        <color attach="background" args={['#0f172a']} />
+
+        {/* Lights for Drone Visibility */}
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 20, 10]} intensity={1.5} castShadow />
 
         {/* Environment - placed first so lighting is available */}
         {!isLoading && (

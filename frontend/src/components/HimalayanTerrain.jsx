@@ -342,7 +342,7 @@ export function HimalayanTerrain({ generationProgress = 1.0, isWireframe = false
       {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
         <planeGeometry args={[500, 500]} />
-        <meshBasicMaterial color="#080810" />
+        <meshBasicMaterial color="#d1d5db" />
       </mesh>
     </group>
   );

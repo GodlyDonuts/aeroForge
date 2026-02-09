@@ -471,6 +471,24 @@ export const simpleDemoOrchestrator = {
 
     // DELAY START
     this.emit('loading', { active: true, message: 'UPGRADING TO V3...' });
+
+    // Inject logs during delay to keep terminal active
+    this.schedule(t + 1500, () => {
+      this.emit('log', { source: 'SYSTEM', message: 'Initiating V3 architecture pipeline...', type: 'info' });
+    });
+
+    this.schedule(t + 3500, () => {
+      this.emit('log', { source: 'DESIGNER', message: 'Compiling generative design constraints...', type: 'working' });
+    });
+
+    this.schedule(t + 6000, () => {
+      this.emit('log', { source: 'SIMULATOR', message: 'Pre-validating toroidal propeller aerodynamics...', type: 'working' });
+    });
+
+    this.schedule(t + 8500, () => {
+      this.emit('log', { source: 'SYSTEM', message: 'Allocating GPU resources for high-fidelity mesh...', type: 'info' });
+    });
+
     t += 11250; // 11.25s Artificial Delay
 
     this.schedule(t, () => {
