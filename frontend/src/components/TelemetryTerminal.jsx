@@ -1,15 +1,66 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { pollMissionStatus } from '../api';
+import { simpleDemoOrchestrator } from '../engine/SimpleDemo';
 
 function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComplete }) {
   const [logs, setLogs] = useState([]);
   const [errors, setErrors] = useState([]);
   const [status, setStatus] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const terminalRef = useRef(null);
 
+  // Setup demo orchestrator listeners
   useEffect(() => {
+    const handleLog = (data) => {
+      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString('en-US', { hour12: false })}] [${data.source}] ${data.message}`]);
+      setStatus(prev => ({
+        ...prev,
+        iteration: prev?.iteration || 1,
+        current_agent: data.source.toLowerCase()
+      }));
+    };
+
+    const handleStatus = (data) => {
+      setStatus(prev => ({
+        ...prev,
+        ...data
+      }));
+      onStatusChange?.(data);
+    };
+
+    const handleComplete = (data) => {
+      setStatus(prev => ({ ...prev, status: 'complete' }));
+      onMissionComplete?.(data);
+    };
+
+    const handleDesignUpdate = (data) => {
+      // Can be used to update the 3D viewer
+      console.log('Design update:', data);
+    };
+
+    simpleDemoOrchestrator.on('log', handleLog);
+    simpleDemoOrchestrator.on('status', handleStatus);
+    simpleDemoOrchestrator.on('complete', handleComplete);
+    simpleDemoOrchestrator.on('design-update', handleDesignUpdate);
+
+    return () => {
+      // Cleanup is handled by the orchestrator internally
+    };
+  }, []);
+
+  useEffect(() => {
+    // Check if this is a demo mission
+    const isDemoMode = missionId?.startsWith('DEMO-');
+    setIsDemoMode(isDemoMode);
+
     if (!missionId || !isRunning) return;
 
+    if (isDemoMode) {
+      // Demo mode - orchestrator handles everything, no API polling
+      return;
+    }
+
+    // Normal API mode
     pollMissionStatus(
       missionId,
       (statusResponse) => {

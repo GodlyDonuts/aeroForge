@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MissionInput from './components/MissionInput';
 import Visualizer3D from './components/Visualizer3D';
 import TelemetryTerminal from './components/TelemetryTerminal';
+import MetricsDisplay from './components/MetricsDisplay';
 import EnvironmentControlPanel from './components/EnvironmentControlPanel';
 import NegotiationModal from './components/NegotiationModal';
 import MissionInitiation from './components/MissionInitiation';
@@ -18,6 +19,35 @@ function App() {
   // Landing State
   const [hasLaunched, setHasLaunched] = useState(false);
   const [landingPrompt, setLandingPrompt] = useState("");
+
+  // Demo Orchestrator setup
+  const [useDemoMode, setUseDemoMode] = useState(false);
+
+  const handleMissionStart = (missionId, prompt) => {
+    setCurrentMissionId(missionId);
+    setIsRunning(true);
+    setMissionStatus({ status: 'generating' });
+    setTelemetryData(null);
+    setUseDemoMode(missionId.startsWith('DEMO-'));
+
+    // CHECK FOR SCRIPT TRIGGER
+    if (!useDemoMode && prompt && (prompt.toLowerCase().includes('alps') || prompt.toLowerCase().includes('rescue'))) {
+      console.log("🏔️ SIMULATION ENGINE TRIGGERED: SCENARIO_ID: ALPINE_RESCUE");
+      // Pre-load scenario (async in real app, sync here for reliability)
+      SimulationEngine.loadScenario('ALPINE_RESCUE').then(() => {
+        runSimulationScenario('ALPINE_RESCUE');
+      });
+    } else if (useDemoMode) {
+      // Demo orchestrator handles everything
+      console.log("🎬 Demo orchestrator handling mission");
+    } else {
+      // Fallback normal simulation
+      setTimeout(() => {
+        setMissionStatus({ status: 'complete' });
+        setIsRunning(false);
+      }, 3000);
+    }
+  };
 
   // --- DETERMINISTIC SIMULATION ENGINE ---
   const runSimulationScenario = (scenarioId) => {
@@ -49,6 +79,26 @@ function App() {
       });
     }, 2000);
   };
+
+  const handleMissionComplete = (status, telemetry) => {
+    setIsRunning(false);
+    setMissionStatus(status);
+    if (telemetry) {
+      setTelemetryData(telemetry);
+    }
+  };
+
+  // Listen for Negotiation Modal from Demo Orchestrator
+  React.useEffect(() => {
+    import('./engine/SimpleDemo').then((module) => {
+      const orchestrator = module.simpleDemoOrchestrator;
+      if (orchestrator) {
+        orchestrator.on('show-negotiation-modal', () => {
+          setShowNegotiation(true);
+        });
+      }
+    });
+  }, []);
 
   if (!hasLaunched) {
     return (
@@ -138,13 +188,12 @@ function App() {
                 missionId={currentMissionId}
                 isRunning={isRunning}
                 onStatusChange={setMissionStatus}
-                onMissionComplete={(status, telemetry) => {
-                  setIsRunning(false);
-                  setMissionStatus(status);
-                  if (telemetry) {
-                    setTelemetryData(telemetry);
-                  }
-                }}
+                onMissionComplete={handleMissionComplete}
+              />
+
+              <MetricsDisplay
+                missionId={currentMissionId}
+                isRunning={isRunning}
               />
             </div>
           </div>

@@ -1,182 +1,166 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Grid, Environment, PerspectiveCamera, Center, Box, Cylinder, Torus } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { HimalayanTerrain } from './HimalayanTerrain';
+import { DroneModel } from './DroneModel';
 import * as THREE from 'three';
 
-// --- DRONE ASSEMBLY ---
-// Supports: "Standard" vs "Rescue" configs, and "Stress" visualization
-function PreviewAssembly({ config = 'standard', isStressed = false }) {
-  const group = useRef();
+// --- WRAPPER FOR DRONE MODEL ---
+// Maintains backward compatibility with existing component structure
+function PreviewAssembly({ config = 'standard', isStressed = false, designParams = {}, flickering = false, droneVersion = 1 }) {
+  // Import different drone versions dynamically
+  const [DroneModelV1, setDroneModelV1] = React.useState(null);
+  const [DroneModelV2, setDroneModelV2] = React.useState(null);
+  const [DroneModelV3, setDroneModelV3] = React.useState(null);
 
-  // Animation for "Hover" idle
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (group.current) {
-      group.current.rotation.y = Math.sin(t * 0.1) * 0.1;
-      group.current.position.y = Math.sin(t * 0.5) * 0.1;
-    }
-  });
+  React.useEffect(() => {
+    import('./DroneModel').then(m => setDroneModelV1(() => m.DroneModel));
+    import('./DroneModelv2').then(m => setDroneModelV2(() => m.DroneModel));
+    import('./DroneModelv3').then(m => setDroneModelV3(() => m.DroneModel));
+  }, []);
 
-  // Material Props
-  const materialProps = {
-    color: "#222222",
-    metalness: 0.8,
-    roughness: 0.2,
-  };
-
-  // Rotor Props (Dynamic for Morphing)
-  const rotorScale = config === 'rescue' ? [1.5, 1, 1.5] : [1, 1, 1];
-  const armLengthMultiplier = config === 'rescue' ? 1.2 : 1;
-
-  // Stress Props (Dynamic for Red Glow)
-  const rotorMaterial = isStressed ? (
-    <meshStandardMaterial
-      color="#ff0000"
-      emissive="#ff0000"
-      emissiveIntensity={2}
-      toneMapped={false}
-    />
-  ) : (
-    <meshStandardMaterial
-      color="#333"
-      metalness={0.5}
-    />
-  );
-
-  return (
-    <group ref={group}>
-      <Center>
-        {/* Fuselage */}
-        <Box args={[1.2, 0.4, 0.6]} castShadow receiveShadow>
-          <meshStandardMaterial {...materialProps} />
-        </Box>
-        <Box args={[0.3, 0.2, 0.1]} position={[0.65, 0, 0]} castShadow>
-          <meshStandardMaterial color="#cc0000" emissive="#cc0000" emissiveIntensity={0.2} />
-        </Box>
-
-        {/* Arms & Rotors */}
-        {[[-1, 1], [-1, -1], [1, 1], [1, -1]].map(([x, z], i) => (
-          <group key={i} position={[x * 0.8 * armLengthMultiplier, 0, z * 0.8 * armLengthMultiplier]}>
-            {/* Arm */}
-            <Box
-              args={[1 * armLengthMultiplier, 0.1, 0.1]}
-              position={[-x * 0.5 * armLengthMultiplier, 0, -z * 0.5 * armLengthMultiplier]}
-              rotation={[0, Math.atan2(z, x), 0]}
-            >
-              <meshStandardMaterial {...materialProps} />
-            </Box>
-
-            {/* Motor Housing */}
-            <Cylinder args={[0.25, 0.2, 0.3, 32]} position={[0, 0.1, 0]} castShadow>
-              <meshStandardMaterial {...materialProps} />
-            </Cylinder>
-
-            {/* Propeller / Rotor */}
-            <group scale={rotorScale}>
-              <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]}>
-                {rotorMaterial}
-              </Box>
-              <Box args={[1.2, 0.02, 0.1]} position={[0, 0.3, 0]} rotation={[0, Math.PI / 2, 0]}>
-                {rotorMaterial}
-              </Box>
-              {/* Rotor Disk Effect (Blur) */}
-              <Cylinder args={[0.6, 0.6, 0.01, 32]} position={[0, 0.3, 0]}>
-                <meshBasicMaterial color={isStressed ? "#ff0000" : "#ffffff"} transparent opacity={0.1} />
-              </Cylinder>
-            </group>
-          </group>
-        ))}
-      </Center>
-    </group>
-  );
-}
-
-// --- ENVIRONMENT ---
-function ProgressiveEnvironment({ stage = 'complete' }) { // 'grid', 'wireframe', 'complete'
-
-  return (
-    <group>
-      {/* Base Grid - Always Visible */}
-      <Grid
-        cellSize={1}
-        cellThickness={0.02}
-        cellColor="#333333"
-        sectionSize={5}
-        sectionThickness={0.05}
-        sectionColor="#555555"
-        fadeDistance={50}
-        infiniteGrid
-      />
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#050505" transparent opacity={0.9} />
-      </mesh>
-
-      {/* Stage 2: Topography Wireframes */}
-      {(stage === 'wireframe' || stage === 'complete') && (
-        <group position={[0, -2, -10]}>
-          {/* Fake Mountain Low Poly */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[10, 0, -10]}>
-            <planeGeometry args={[20, 20, 10, 10]} />
-            <meshBasicMaterial wireframe color="#00ff88" transparent opacity={0.1} />
-          </mesh>
-        </group>
-      )}
-
-      {/* Stage 3: Fog & Atmosphere */}
-      {stage === 'complete' && (
-        <>
-          <fog attach="fog" args={['#050505', 5, 40]} />
-          <Environment preset="city" />
-        </>
-      )}
-    </group>
-  );
+  if (droneVersion === 3 && DroneModelV3) {
+    return <DroneModelV3 hovering={true} />;
+  } else if (droneVersion === 2 && DroneModelV2) {
+    return (
+      <group position={[0, -10, 0]}>
+        <DroneModelV2 hovering={true} />
+      </group>
+    );
+  } else {
+    return DroneModelV1 ? <DroneModelV1 config={config} isStressed={isStressed} designParams={designParams} flickering={flickering} /> : null;
+  }
 }
 
 
-// --- MAIN VISUALIZER ---
 function Visualizer3D({ missionId, missionStatus, telemetryData }) {
   // Config State for Demo
   const [droneConfig, setDroneConfig] = useState('standard');
   const [isStressed, setIsStressed] = useState(false);
-  const [envStage, setEnvStage] = useState('complete'); // 'grid' -> 'wireframe' -> 'complete'
+  const [envStage, setEnvStage] = useState('complete'); // 'grid' -> 'wireframe' -> 'complete' (always 'complete' for Himalayan demo)
+  const [designParams, setDesignParams] = useState({});
+  const [terrainProgress, setTerrainProgress] = useState(1.0);
+  const [terrainDetail, setTerrainDetail] = useState(2);
+  const [flickering, setFlickering] = useState(false);
+  const [droneVersion, setDroneVersion] = useState(1); // Track drone version
+
+  // Artificial Delay State
+  const [isLoading, setIsLoading] = useState(false);
+  const pendingTerrainData = useRef(null);
+  const loadingTimeout = useRef(null);
+  const [loadingMessage, setLoadingMessage] = useState('GENERATING GEOMETRY...');
 
   // Ref for exposing controls to window for "Scripting"
   useEffect(() => {
     window.aeroForge = {
       setStressed: setIsStressed,
       setConfig: setDroneConfig,
-      setEnvStage: setEnvStage
+      setEnvStage: setEnvStage,
+      setDesignParams: setDesignParams
     };
   }, []);
+
+  // Listen for demo orchestrator updates
+  useEffect(() => {
+    // Listen for demo orchestrator updates
+    const handleDesignUpdate = (data) => {
+      console.log('Visualizer: Design update received', data);
+      setDesignParams(data);
+    };
+
+    const handleTerrainUpdate = (data) => {
+      console.log('Visualizer: Terrain update received', data);
+      if (data.wireframe !== undefined) {
+        setEnvStage(data.wireframe ? 'wireframe' : 'complete');
+      }
+      setTerrainProgress(data.progress || 1.0);
+      setTerrainDetail(data.detailLevel || 2);
+      if (data.flicker) {
+        setFlickering(true);
+        setTimeout(() => setFlickering(false), 300);
+      }
+    };
+
+    const handleLoading = (data) => {
+      console.log('Visualizer: Loading event received', data);
+      if (data.active) {
+        setIsLoading(true);
+        if (data.message) setLoadingMessage(data.message);
+      } else {
+        setIsLoading(false);
+        setLoadingMessage('GENERATING GEOMETRY...'); // Reset default
+      }
+    };
+
+    const handleEnvironmentUpdate = (data) => {
+      console.log('Visualizer: Environment update received', data);
+      if (data.stage) {
+        setEnvStage(data.stage);
+      }
+    };
+
+    const handleDroneVersionChange = (data) => {
+      console.log('Visualizer: Drone version change received', data);
+      if (data.version) {
+        setDroneVersion(data.version);
+        setFlickering(true);
+        setTimeout(() => setFlickering(false), 500);
+      }
+    };
+
+    // Import simple demo orchestrator
+    import('../engine/SimpleDemo').then((module) => {
+      const orchestrator = module.simpleDemoOrchestrator;
+      if (orchestrator) {
+        orchestrator.on('design-update', handleDesignUpdate);
+        orchestrator.on('terrain-update', handleTerrainUpdate);
+        orchestrator.on('environment-update', handleEnvironmentUpdate);
+        orchestrator.on('drone-version-change', handleDroneVersionChange);
+        orchestrator.on('loading', handleLoading);
+      }
+    });
+
+    return () => {
+      // Cleanup
+      if (loadingTimeout.current) clearTimeout(loadingTimeout.current);
+    };
+  }, [isLoading, terrainProgress]); // Dependencies for the effect closure
 
   return (
     <div className="flex-1 bg-black relative overflow-hidden h-full">
       <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[6, 4, 6]} fov={45} />
+        <PerspectiveCamera makeDefault position={[21.30, 82.71, 2.39]} fov={60} />
         <color attach="background" args={['#000000']} />
 
-        {/* Lighting */}
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+        {/* Environment - placed first so lighting is available */}
+        {!isLoading && (
+          <HimalayanTerrain
+            generationProgress={terrainProgress}
+            isWireframe={envStage === 'wireframe'}
+            detailLevel={terrainDetail}
+          />
+        )}
 
-        {/* Environment */}
-        <ProgressiveEnvironment stage={envStage} />
+        {/* Drone Model - positioned higher and offset to avoid being inside peaks */}
+        {!isLoading && (
+          <Suspense fallback={null}>
+            <group position={[0, 65, 0]}>
+              <PreviewAssembly config={droneConfig} isStressed={isStressed} designParams={designParams} flickering={flickering} droneVersion={droneVersion} />
+            </group>
+          </Suspense>
+        )}
 
-        {/* Drone Model */}
-        <Suspense fallback={null}>
-          <group position={[0, 0, 0]}>
-            <PreviewAssembly config={droneConfig} isStressed={isStressed} />
-          </group>
-        </Suspense>
-
-        <OrbitControls enableDamping minDistance={3} maxDistance={20} maxPolarAngle={Math.PI / 2} />
+        <OrbitControls
+          enableDamping
+          minDistance={8}
+          maxDistance={40}
+          maxPolarAngle={Math.PI / 2.2}
+          target={[0, 45, 0]} // Look at the drone
+        />
       </Canvas>
 
       {/* Overlay: Stress Warning */}
-      {isStressed && (
+      {isStressed && !isLoading && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           <div className="w-full h-full border-[20px] border-error/20 animate-pulse"></div>
           <div className="absolute top-1/4 bg-error/10 border border-error text-error px-4 py-2 font-mono font-bold uppercase tracking-widest text-lg backdrop-blur-md animate-bounce">
@@ -186,10 +170,22 @@ function Visualizer3D({ missionId, missionStatus, telemetryData }) {
       )}
 
       {/* Overlay: Loading */}
-      {missionStatus?.status === 'generating' && (
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-spacex-blue border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-spacex-blue font-mono text-sm uppercase tracking-[0.2em] animate-pulse">
+              {loadingMessage}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay: Status Message (Small bottom left) */}
+      {missionStatus?.status === 'generating' && !isLoading && (
         <div className="absolute bottom-8 left-8">
           <div className="text-spacex-text-dim font-mono text-xs uppercase tracking-wider animate-pulse">
-            {'>'} GENERATING GEOMETRY...
+            {'>'} OPTIMIZING MESH...
           </div>
         </div>
       )}

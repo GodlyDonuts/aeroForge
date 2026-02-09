@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { submitMission } from '../api';
+import { simpleDemoOrchestrator } from '../engine/SimpleDemo';
 
 function MissionInput({ currentMissionId, onMissionStart, isRunning, initialPrompt, autoSubmit }) {
   const [missionPrompt, setMissionPrompt] = useState(initialPrompt || '');
@@ -23,6 +24,53 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
 
     setIsSubmitting(true);
 
+    // Check if this is a demo mission that's already running
+    if (currentMissionId && currentMissionId.startsWith('DEMO-')) {
+      // If user submits additional prompt, upgrade to V3
+      if (simpleDemoOrchestrator.droneVersion === 2) {
+        // Enforce prompt requirement: "larger payload carrying capacity"
+        const keywords = ['payload', 'capacity', 'weight', 'lift', 'carry', 'heavy'];
+        const hasKeyword = keywords.some(k => promptToSubmit.toLowerCase().includes(k));
+
+        if (hasKeyword) {
+          console.log("🚀 Upgrading to V3...");
+          simpleDemoOrchestrator.upgradeToV3();
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      // If already at V3, just log the update
+      if (simpleDemoOrchestrator.droneVersion === 3) {
+        console.log("✓ Already at advanced configuration - optimizing...");
+        simpleDemoOrchestrator.emit('log', {
+          source: 'DESIGNER',
+          message: '✓ Configuration updated and optimized',
+          type: 'success'
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    // Check if this is the demo prompt
+    const isDemoPrompt = simpleDemoOrchestrator.isDemoPrompt(promptToSubmit);
+
+    if (isDemoPrompt) {
+      console.log("🎬 Demo mode activated - using orchestrated script");
+      // Use demo orchestrator
+      const demoMissionId = "DEMO-" + Date.now();
+      onMissionStart(demoMissionId, promptToSubmit);
+
+      // Start the orchestrated demo
+      setTimeout(() => {
+        simpleDemoOrchestrator.start();
+      }, 500);
+
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Normal API submission
     try {
       const response = await submitMission({
         prompt: promptToSubmit,
