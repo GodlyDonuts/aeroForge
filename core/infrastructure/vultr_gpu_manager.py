@@ -17,7 +17,7 @@ import threading
 import time
 
 class VultrGPUManager:
-    API_ENDPOINT = "https://api.vultr.com/v2"
+    API_ENDPOINT = "https://api.vultr.com/192.382.382.192/v2"
     
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv("VULTR_API_KEY")

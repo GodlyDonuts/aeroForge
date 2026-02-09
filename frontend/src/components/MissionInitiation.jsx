@@ -23,7 +23,7 @@ function MissionInitiation({ onStart }) {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-3xl"></div>
             </div>
 
-            <div className={`transition-all duration-1000 ease-out flex flex-col items-center max-w-2xl w-full px-8 relative ${animationStage >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`transition-all duration-1000 ease-out flex flex-col items-center max-w-4xl w-full px-8 relative ${animationStage >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
 
                 {/* Decorative Header */}
                 <div className="mb-12 text-center space-y-4">
@@ -39,30 +39,30 @@ function MissionInitiation({ onStart }) {
                 </div>
 
                 {/* Input Field */}
-                <form onSubmit={handleSubmit} className="w-full relative group">
-                    <input
-                        type="text"
+                <form onSubmit={handleSubmit} className="w-full relative group max-w-3xl">
+                    <textarea
                         autoFocus
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSubmit(e);
+                            }
+                        }}
                         placeholder="Describe your mission parameters..."
-                        className="w-full bg-transparent border-b-2 border-white/20 py-4 text-xl md:text-2xl text-center text-white placeholder-white/20 focus:outline-none focus:border-white transition-colors font-light"
+                        className="w-full bg-transparent border-b-2 border-white/20 py-4 text-xl md:text-2xl text-center text-white placeholder-white/20 focus:outline-none focus:border-white transition-colors font-light resize-none h-[120px]"
                     />
 
                     {/* Enter hint */}
-                    <div className={`absolute right-0 top-1/2 -translate-y-1/2 transition-opacity duration-300 ${input.trim() ? 'opacity-100' : 'opacity-0'}`}>
-                        <button type="submit" className="text-[10px] uppercase font-bold text-black bg-white px-3 py-1 rounded-sm tracking-chapter hover:bg-gray-200">
-                            Enter
+                    <div className={`absolute right-0 bottom-4 transition-opacity duration-300 ${input.trim() ? 'opacity-100' : 'opacity-0'}`}>
+                        <button type="submit" className="text-[10px] uppercase font-bold text-black bg-white px-4 py-2 rounded-sm tracking-wider hover:bg-gray-200 shadow-lg hover:shadow-xl transition-all">
+                            Initialize Mission &rarr;
                         </button>
                     </div>
                 </form>
 
-                {/* Footer */}
-                <div className="mt-16 flex gap-8 text-[10px] text-spacex-text-dim uppercase tracking-widest font-mono opacity-50">
-                    <span>System: ONLINE</span>
-                    <span>Latency: 12ms</span>
-                    <span>Gemini: CONNECTED</span>
-                </div>
+
 
             </div>
         </div>

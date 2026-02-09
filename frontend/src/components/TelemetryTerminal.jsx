@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { pollMissionStatus } from '../api';
 import { simpleDemoOrchestrator } from '../engine/SimpleDemo';
+import { ExportManager } from '../utils/ExportManager';
 
 function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComplete }) {
   const [logs, setLogs] = useState([]);
@@ -300,6 +301,24 @@ function TelemetryTerminal({ missionId, isRunning, onStatusChange, onMissionComp
             {isRunning ? 'Uplink Active' : 'Offline'}
           </span>
         </div>
+
+        {/* EXPORT BUTTON - Only visible when complete */}
+        {status?.status === 'complete' && (
+          <button
+            onClick={() => ExportManager.downloadBundle({
+              missionId,
+              logs,
+              status,
+              telemetry: status.telemetry || {}
+            }, `mission-${missionId}-${Date.now()}`)}
+            className="px-3 py-1 bg-spacex-surface border border-spacex-border hover:bg-white hover:text-black transition-colors rounded-sm flex items-center gap-2"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Export Mission Package
+            </span>
+            <span className="text-[10px]">📦</span>
+          </button>
+        )}
       </div>
     </div>
   );

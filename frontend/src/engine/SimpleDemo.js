@@ -49,12 +49,29 @@ export const simpleDemoOrchestrator = {
       this.emit('loading', { active: true, message: 'GENERATING GEOMETRY...' });
     });
 
+    // Inject logs during initial load to keep terminal active
+    this.schedule(t + 1500, () => {
+      this.emit('log', { source: 'SYSTEM', message: 'Parsing natural language constraints...', type: 'info' });
+    });
+
+    this.schedule(t + 3500, () => {
+      this.emit('log', { source: 'SYSTEM', message: 'Initializing Himalayan terrain generation...', type: 'working' });
+    });
+
+    this.schedule(t + 6000, () => {
+      this.emit('log', { source: 'SYSTEM', message: 'Fetching meteorological data for 5000m altitude...', type: 'info' });
+    });
+
+    this.schedule(t + 8500, () => {
+      this.emit('log', { source: 'SIMULATOR', message: 'Configuring physics engine for low-density atmosphere...', type: 'working' });
+    });
+
     t += 11250; // 11.25s (2.25x original)
 
     // Stage 1: Initial terrain loading (wireframe)
     this.schedule(t, () => {
       this.emit('loading', { active: false });
-      this.emit('log', { source: 'SYSTEM', message: '📋 Mission initialized: Himalayan Medical Delivery Drone', type: 'info' });
+      this.emit('log', { source: 'SYSTEM', message: '📋 Mission initialized: Himalayan Medical Delivery System', type: 'info' });
       this.emit('log', { source: 'SYSTEM', message: '🏔️ Loading Himalayan terrain environment...', type: 'info' });
       this.emit('terrain-update', { progress: 0.2, wireframe: true, detailLevel: 1 });
       this.emit('status', { status: 'running', iteration: 0, agent: 'none' });

@@ -3,7 +3,7 @@ import { submitMission } from '../api';
 import { simpleDemoOrchestrator } from '../engine/SimpleDemo';
 
 function MissionInput({ currentMissionId, onMissionStart, isRunning, initialPrompt, autoSubmit }) {
-  const [missionPrompt, setMissionPrompt] = useState(initialPrompt || '');
+  const [missionPrompt, setMissionPrompt] = useState('');
   const [maxIterations, setMaxIterations] = useState(4);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAutoLaunched, setHasAutoLaunched] = useState(false);
@@ -111,10 +111,10 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-sm bg-spacex-surface border border-spacex-border flex items-center justify-center text-sm font-bold text-white font-mono">
-              M
+              S
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Drone Parameters</h2>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Design Parameters</h2>
             </div>
           </div>
 
@@ -135,11 +135,11 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
           {/* Mission Description */}
           <div className="space-y-2">
             <label className="block text-[10px] text-spacex-text-dim uppercase tracking-wider font-bold">
-              Drone Specification
+              System Specification
             </label>
             <textarea
               className="glass-input w-full min-h-[100px] resize-none font-mono text-xs leading-relaxed"
-              placeholder="Describe the drone configuration..."
+              placeholder="Describe the system configuration..."
               value={missionPrompt}
               onChange={(e) => setMissionPrompt(e.target.value)}
               disabled={isSubmitting || isRunning}
@@ -189,7 +189,7 @@ function MissionInput({ currentMissionId, onMissionStart, isRunning, initialProm
               }`}
             disabled={isSubmitting || !missionPrompt.trim() || isRunning}
           >
-            {isSubmitting ? 'Processing...' : isRunning ? 'Update in Progress' : 'Update Drone'}
+            {isSubmitting ? 'Processing...' : isRunning ? 'Update in Progress' : 'Update Design'}
           </button>
         </form>
       </div>

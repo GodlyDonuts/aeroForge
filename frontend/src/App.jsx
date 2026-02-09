@@ -159,7 +159,7 @@ function App() {
         <div className="col-span-3 border-r border-spacex-border flex flex-col bg-spacex-bg">
           <div className="p-2 border-b border-spacex-border bg-black/50">
             <h3 className="text-[10px] uppercase font-bold text-spacex-text-dim tracking-wider flex items-center gap-2">
-              <span>🛸</span> Drone Registry
+              <span>🛸</span> System Registry
             </h3>
           </div>
           <div className="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">

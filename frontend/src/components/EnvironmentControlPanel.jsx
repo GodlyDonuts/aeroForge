@@ -142,7 +142,7 @@ function EnvironmentControlPanel() {
                                     A
                                 </div>
                                 <div>
-                                    <h2 className="text-sm font-bold text-white uppercase tracking-wider">Atmospheric Conditions</h2>
+                                    <h2 className="text-sm font-bold text-white uppercase tracking-wider">Environmental Conditions</h2>
                                 </div>
                             </div>
 
